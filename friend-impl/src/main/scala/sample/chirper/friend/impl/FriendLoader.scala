@@ -29,5 +29,7 @@ abstract class FriendApplication(context: LagomApplicationContext)
 
   override def jsonSerializerRegistry = FriendSerializerRegistry
 
+  persistentEntityRegistry.register(wire[FriendEntity])
+
 }
 

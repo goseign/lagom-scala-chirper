@@ -1,37 +1,39 @@
 package sample.chirper.friend.impl
 
-import akka.NotUsed
+import akka.Done
 import com.lightbend.lagom.scaladsl.api.ServiceCall
 import com.lightbend.lagom.scaladsl.api.transport.NotFound
-import com.lightbend.lagom.scaladsl.persistence.PersistentEntityRegistry
+import com.lightbend.lagom.scaladsl.persistence.cassandra.CassandraSession
+import com.lightbend.lagom.scaladsl.persistence.{PersistentEntityRef, PersistentEntityRegistry}
 import sample.chirper.friend.api.{FriendId, FriendService, User}
 
-import scala.collection.mutable
-import scala.concurrent.Future
+import scala.concurrent.ExecutionContext
 
-class FriendServiceImpl(persistentEntityRegistry: PersistentEntityRegistry) extends FriendService {
-
-  val users = mutable.Map.empty[String, User]
+class FriendServiceImpl(
+                         persistentEntities: PersistentEntityRegistry,
+                         db: CassandraSession
+                       )(implicit ec: ExecutionContext) extends FriendService {
 
   override def getUser(userId: String) = ServiceCall { _ =>
-    Future.successful(users.getOrElse(userId, throw NotFound(userId)))
+    friendEntityRef(userId).ask(GetUser())
+      .map(_.user.getOrElse(throw NotFound(s"user $userId not found")))
   }
 
-  override def createUser(): ServiceCall[User, NotUsed] = ServiceCall { user =>
-    users.put(user.userId, user)
-    Future.successful(NotUsed.getInstance())
+  override def createUser(): ServiceCall[User, Done] = ServiceCall { request =>
+    friendEntityRef(request.userId).ask(CreateUser(request))
   }
 
-  override def addFriend(userId: String): ServiceCall[FriendId, NotUsed] = ServiceCall { req =>
-    val user = users.getOrElse(userId, throw NotFound(userId))
-    val friend = users.getOrElse(req.friendId, throw NotFound(req.friendId))
-    users.put(userId, user.copy(friends = user.friends :+ req.friendId))
-    Future.successful(NotUsed.getInstance())
+  override def addFriend(userId: String): ServiceCall[FriendId, Done] = ServiceCall { request =>
+    friendEntityRef(userId).ask(AddFriend(request.friendId))
   }
 
-  override def getFollowers(userId: String) = ServiceCall { req =>
-    val user = users.getOrElse(userId, throw NotFound(userId))
-    Future.successful(user.friends)
+  override def getFollowers(userId: String) = ServiceCall { _ =>
+    db.selectAll("SELECT * FROM followers WHERE userId = ?", userId).map { rows =>
+      rows.map(_.getString("followedBy"))
+    }
   }
+
+  private def friendEntityRef(userId: String): PersistentEntityRef[FriendCommand[_]] =
+    persistentEntities.refFor[FriendEntity](userId)
 
 }
