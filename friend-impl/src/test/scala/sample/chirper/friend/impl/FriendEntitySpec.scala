@@ -1,10 +1,12 @@
 package sample.chirper.friend.impl
 
+import akka.Done
 import akka.actor.ActorSystem
 import akka.testkit.TestKit
 import com.lightbend.lagom.scaladsl.playjson.JsonSerializerRegistry
 import com.lightbend.lagom.scaladsl.testkit.PersistentEntityTestDriver
 import org.scalatest.{BeforeAndAfterAll, Matchers, WordSpec}
+import sample.chirper.friend.api.User
 
 class FriendEntitySpec extends WordSpec with Matchers with BeforeAndAfterAll {
 
@@ -25,6 +27,14 @@ class FriendEntitySpec extends WordSpec with Matchers with BeforeAndAfterAll {
     "not be initialized by default" in withTestDriver { driver =>
       val outcome = driver.run(GetUser())
       outcome.replies should contain only GetUserReply(None)
+    }
+
+    "create user" in withTestDriver { driver =>
+      val alice = User("alice", "Alice")
+      val outcome = driver.run(CreateUser(alice))
+      outcome.replies should contain only Done
+//      outcome.events.size should ===(1)
+//      outcome.events.head should matchPattern { case _ => }
     }
 
   }

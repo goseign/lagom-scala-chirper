@@ -1,8 +1,11 @@
 package sample.chirper.friend.impl
 
+import akka.Done
 import com.lightbend.lagom.scaladsl.persistence.PersistentEntity.ReplyType
 import play.api.libs.json._
 import sample.chirper.friend.api.User
+
+// COMMANDS ------------------------------------------------------------------------------------------------------------
 
 sealed trait FriendCommand[R] extends ReplyType[R]
 
@@ -14,8 +17,17 @@ object GetUser {
   implicit val writes = OWrites[GetUser](_ => Json.obj())
 }
 
+case class CreateUser(user: User) extends FriendCommand[Done]
+
+object CreateUser {
+  implicit val format: Format[CreateUser] = Json.format[CreateUser]
+}
+
+// REPLIES -------------------------------------------------------------------------------------------------------------
+
 case class GetUserReply(user: Option[User])
 
 object GetUserReply {
   implicit val format: Format[GetUserReply] = Json.format[GetUserReply]
 }
+

@@ -6,5 +6,9 @@ import sample.chirper.friend.api.User
 case class FriendState(user: Option[User])
 
 object FriendState {
+
   implicit val format: Format[FriendState] = Json.format[FriendState]
+
+  def apply(user: User): FriendState = new FriendState(Some(user))
+
 }

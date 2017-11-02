@@ -2,7 +2,7 @@ package sample.chirper.friend.api
 
 import play.api.libs.json.{Format, Json}
 
-case class User(userId: String, name: String, friends: Seq[String])
+case class User(userId: String, name: String, friends: Seq[String] = Nil)
 
 object User {
 

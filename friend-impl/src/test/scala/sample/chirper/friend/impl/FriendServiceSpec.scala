@@ -9,7 +9,7 @@ import sample.chirper.friend.api.{FriendId, FriendService, User}
 
 class FriendServiceSpec extends AsyncWordSpec with Matchers with BeforeAndAfterAll {
 
-  val server = ServiceTest.startServer(ServiceTest.defaultSetup) { ctx =>
+  val server = ServiceTest.startServer(ServiceTest.defaultSetup.withCassandra(true)) { ctx =>
     new FriendApplication(ctx) with LocalServiceLocator
   }
 
@@ -20,7 +20,7 @@ class FriendServiceSpec extends AsyncWordSpec with Matchers with BeforeAndAfterA
   "Friend service" should {
 
     "create and get user" in {
-      val bob = User("bob", "Bob", Nil)
+      val bob = User("bob", "Bob")
       for {
         _ <- client.createUser().invoke(bob)
         bobResp <- client.getUser(bob.userId).invoke()
@@ -30,8 +30,8 @@ class FriendServiceSpec extends AsyncWordSpec with Matchers with BeforeAndAfterA
     }
 
     "add friend" in {
-      val alice = User("alice", "Alice", Nil)
-      val bob = User("bob", "Bob", Nil)
+      val alice = User("alice", "Alice")
+      val bob = User("bob", "Bob")
       for {
         _ <- client.createUser().invoke(alice)
         _ <- client.createUser().invoke(bob)
@@ -43,9 +43,9 @@ class FriendServiceSpec extends AsyncWordSpec with Matchers with BeforeAndAfterA
     }
 
     "get user's followers" in {
-      val alice = User("alice", "Alice", Nil)
-      val bob = User("bob", "Bob", Nil)
-      val carl = User("carl", "Carl", Nil)
+      val alice = User("alice", "Alice")
+      val bob = User("bob", "Bob")
+      val carl = User("carl", "Carl")
       for {
         _ <- client.createUser().invoke(alice)
         _ <- client.createUser().invoke(bob)
