@@ -6,10 +6,10 @@ import com.lightbend.lagom.scaladsl.playjson.{JsonSerializer, JsonSerializerRegi
 class FriendEntity extends PersistentEntity{
 
   override type Command = FriendCommand[_]
-  override type Event = this.type
-  override type State = this.type
+  override type Event = FriendEvent
+  override type State = FriendState
 
-  override def initialState = ???
+  override def initialState = FriendState(None)
 
   override def behavior = ???
 
@@ -20,3 +20,4 @@ object FriendSerializerRegistry extends JsonSerializerRegistry {
     JsonSerializer[GetUser]
   )
 }
+
