@@ -3,8 +3,9 @@ package sample.chirper.friend.impl
 import akka.Done
 import com.lightbend.lagom.scaladsl.api.ServiceCall
 import com.lightbend.lagom.scaladsl.api.transport.NotFound
+import com.lightbend.lagom.scaladsl.broker.TopicProducer
 import com.lightbend.lagom.scaladsl.persistence.cassandra.CassandraSession
-import com.lightbend.lagom.scaladsl.persistence.{PersistentEntityRef, PersistentEntityRegistry}
+import com.lightbend.lagom.scaladsl.persistence.{EventStreamElement, PersistentEntityRef, PersistentEntityRegistry}
 import sample.chirper.friend.api.{FriendId, FriendService, User}
 
 import scala.concurrent.ExecutionContext
@@ -28,7 +29,7 @@ class FriendServiceImpl(
   }
 
   override def getFollowers(userId: String) = ServiceCall { _ =>
-    db.selectAll("SELECT * FROM followers WHERE userId = ?", userId).map { rows =>
+    db.selectAll("SELECT * FROM follower WHERE userId = ?", userId).map { rows =>
       rows.map(_.getString("followedBy"))
     }
   }
@@ -36,4 +37,17 @@ class FriendServiceImpl(
   private def friendEntityRef(userId: String): PersistentEntityRef[FriendCommand[_]] =
     persistentEntities.refFor[FriendEntity](userId)
 
+  override def friendsTopic() = TopicProducer.singleStreamWithOffset { fromOffset =>
+    persistentEntities.eventStream(FriendEvent.Tag, fromOffset).map { event =>
+      (convertEvent(event), event.offset)
+    }
+
+  }
+
+  private def convertEvent(friendEvent: EventStreamElement[FriendEvent]) = {
+    friendEvent.event match {
+      case FriendAdded(userId, friendId, timestamp) => sample.chirper.friend.api.FriendAdded(userId, friendId, timestamp)
+      case other => throw new Exception(s"event not supported: $other")
+    }
+  }
 }

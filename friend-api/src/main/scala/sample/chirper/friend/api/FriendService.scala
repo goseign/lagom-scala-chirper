@@ -1,6 +1,8 @@
 package sample.chirper.friend.api
 
 import akka.{Done, NotUsed}
+import com.lightbend.lagom.scaladsl.api.broker.Topic
+import com.lightbend.lagom.scaladsl.api.broker.kafka.{KafkaProperties, PartitionKeyStrategy}
 import com.lightbend.lagom.scaladsl.api.{Service, ServiceCall}
 
 trait FriendService extends Service {
@@ -13,6 +15,8 @@ trait FriendService extends Service {
 
   def getFollowers(userId: String): ServiceCall[NotUsed, Seq[String]]
 
+  def friendsTopic(): Topic[FriendAdded]
+
   override def descriptor = {
     import Service._
 
@@ -21,7 +25,17 @@ trait FriendService extends Service {
       namedCall("/api/users", createUser _),
       pathCall("/api/users/:userId/friends", addFriend _),
       pathCall("/api/users/:userId/followers", getFollowers _)
+    ).withTopics(
+      topic(FriendService.TopicName, friendsTopic _)
+        .addProperty(
+          KafkaProperties.partitionKeyStrategy,
+          PartitionKeyStrategy[FriendAdded](_.userId)
+        )
     ).withAutoAcl(true)
 
   }
+}
+
+object FriendService {
+  val TopicName = "friends"
 }

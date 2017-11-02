@@ -28,11 +28,9 @@ class FriendServiceSpec extends AsyncWordSpec with Matchers with BeforeAndAfterA
         _ <- client.addFriend("usr1").invoke(FriendId("usr2"))
         _ <- client.addFriend("usr1").invoke(FriendId("usr3"))
         fetchedUsr1 <- client.getUser("usr1").invoke()
-        //followers <- client.getFollowers("usr1").invoke()
       } yield {
         fetchedUsr1 should matchPattern { case User(usr1.userId, usr1.name, _) => }
         fetchedUsr1.friends should ===(List("usr2", "usr3"))
-        //followers should ===(List("usr2", "usr3"))
       }
     }
 
