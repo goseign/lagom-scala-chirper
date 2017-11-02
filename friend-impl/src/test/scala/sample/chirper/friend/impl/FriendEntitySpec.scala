@@ -3,6 +3,7 @@ package sample.chirper.friend.impl
 import akka.Done
 import akka.actor.ActorSystem
 import akka.testkit.TestKit
+import com.lightbend.lagom.scaladsl.persistence.PersistentEntity.InvalidCommandException
 import com.lightbend.lagom.scaladsl.playjson.JsonSerializerRegistry
 import com.lightbend.lagom.scaladsl.testkit.PersistentEntityTestDriver
 import org.scalatest.{BeforeAndAfterAll, Matchers, WordSpec}
@@ -33,8 +34,22 @@ class FriendEntitySpec extends WordSpec with Matchers with BeforeAndAfterAll {
       val alice = User("alice", "Alice")
       val outcome = driver.run(CreateUser(alice))
       outcome.replies should contain only Done
-//      outcome.events.size should ===(1)
-//      outcome.events.head should matchPattern { case _ => }
+      outcome.events.size should ===(1)
+      outcome.events.head should matchPattern { case UserCreated("alice", "Alice", _) => }
+    }
+
+    "reject duplicate create" in withTestDriver { driver =>
+      val alice = User("alice", "Alice")
+      driver.run(CreateUser(alice))
+      val outcome = driver.run(CreateUser(alice))
+      outcome.replies should contain only InvalidCommandException("User Alice is already created")
+    }
+
+    "create user with initial friends" in withTestDriver { driver =>
+      val alice = User("alice", "Alice", List("bob", "peter"))
+      val outcome = driver.run(CreateUser(alice))
+      outcome.replies should contain only Done
+      outcome.events.size should ===(3)
     }
 
   }

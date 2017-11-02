@@ -15,7 +15,7 @@ class FriendEntity extends PersistentEntity {
 
   override def behavior = {
     case FriendState(None) => notInitialized
-    case FriendState(Some(user)) => notInitialized
+    case FriendState(Some(user)) => initialized
   }
 
   val onGetUser = Actions().onReadOnlyCommand[GetUser, GetUserReply] {
@@ -34,8 +34,17 @@ class FriendEntity extends PersistentEntity {
       onEvent {
         case (UserCreated(userId, name, timestamp), state) => FriendState(User(userId, name))
       }
-  }.
-    orElse(onGetUser)
+  }.orElse(onGetUser)
+
+  val initialized = {
+    Actions().
+      onCommand[CreateUser, Done] {
+      case (CreateUser(user), ctx, state) =>
+        ctx.invalidCommand(s"User ${user.name} is already created")
+        ctx.done
+    }
+  }.orElse(onGetUser)
+
 }
 
 object FriendSerializerRegistry extends JsonSerializerRegistry {
