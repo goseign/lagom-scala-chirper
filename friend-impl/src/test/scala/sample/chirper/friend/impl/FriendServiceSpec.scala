@@ -1,11 +1,11 @@
 package sample.chirper.friend.impl
 
+import com.lightbend.lagom.scaladsl.api.transport.NotFound
 import com.lightbend.lagom.scaladsl.server.LocalServiceLocator
 import com.lightbend.lagom.scaladsl.testkit.ServiceTest
+import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.{AsyncWordSpec, BeforeAndAfterAll, Matchers}
-import sample.chirper.friend.api.{FriendService, User}
-
-import scala.concurrent.Future
+import sample.chirper.friend.api.{FriendId, FriendService, User}
 
 class FriendServiceSpec extends AsyncWordSpec with Matchers with BeforeAndAfterAll {
 
@@ -19,11 +19,50 @@ class FriendServiceSpec extends AsyncWordSpec with Matchers with BeforeAndAfterA
 
   "Friend service" should {
 
-    "get user" in {
-      val fUser: Future[User] = client.getUser("bob").invoke()
-      fUser.map(user =>
-        user.userId should ===("bob")
-      )
+    "create and get user" in {
+      val bob = User("bob", "Bob", Nil)
+      for {
+        _ <- client.createUser().invoke(bob)
+        bobResp <- client.getUser(bob.userId).invoke()
+      } yield {
+        bobResp should ===(bob)
+      }
+    }
+
+    "add friend" in {
+      val alice = User("alice", "Alice", Nil)
+      val bob = User("bob", "Bob", Nil)
+      for {
+        _ <- client.createUser().invoke(alice)
+        _ <- client.createUser().invoke(bob)
+        _ <- client.addFriend(alice.userId).invoke(FriendId(bob.userId))
+        aliceResp <- client.getUser(alice.userId).invoke()
+      } yield {
+        aliceResp.friends.head should ===(bob.userId)
+      }
+    }
+
+    "get user's followers" in {
+      val alice = User("alice", "Alice", Nil)
+      val bob = User("bob", "Bob", Nil)
+      val carl = User("carl", "Carl", Nil)
+      for {
+        _ <- client.createUser().invoke(alice)
+        _ <- client.createUser().invoke(bob)
+        _ <- client.createUser().invoke(carl)
+        _ <- client.addFriend(alice.userId).invoke(FriendId(bob.userId))
+        _ <- client.addFriend(alice.userId).invoke(FriendId(carl.userId))
+        aliceResp <- client.getUser(alice.userId).invoke()
+      } yield {
+        aliceResp.friends should ===(List(bob.userId, carl.userId))
+      }
+    }
+
+    "handle user not found" in {
+      val fUser = client.getUser("unknown-user").invoke()
+      ScalaFutures.whenReady(fUser.failed) { e =>
+        e shouldBe a[NotFound]
+      }
     }
 
   }
