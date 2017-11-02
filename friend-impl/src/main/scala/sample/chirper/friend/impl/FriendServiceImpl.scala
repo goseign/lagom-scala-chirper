@@ -3,12 +3,13 @@ package sample.chirper.friend.impl
 import akka.NotUsed
 import com.lightbend.lagom.scaladsl.api.ServiceCall
 import com.lightbend.lagom.scaladsl.api.transport.NotFound
+import com.lightbend.lagom.scaladsl.persistence.PersistentEntityRegistry
 import sample.chirper.friend.api.{FriendId, FriendService, User}
 
 import scala.collection.mutable
 import scala.concurrent.Future
 
-class FriendServiceImpl extends FriendService {
+class FriendServiceImpl(persistentEntityRegistry: PersistentEntityRegistry) extends FriendService {
 
   val users = mutable.Map.empty[String, User]
 

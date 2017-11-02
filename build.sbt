@@ -21,6 +21,7 @@ lazy val `friend-impl` = (project in file("friend-impl"))
   .enablePlugins(LagomScala)
   .settings(
     libraryDependencies ++= Seq(
+      lagomScaladslPersistenceCassandra,
       lagomScaladslTestKit,
       macwire,
       scalaTest
