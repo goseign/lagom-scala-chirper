@@ -5,6 +5,8 @@ import com.lightbend.lagom.scaladsl.persistence.PersistentEntity
 import com.lightbend.lagom.scaladsl.playjson.{JsonSerializer, JsonSerializerRegistry}
 import sample.chirper.friend.api.User
 
+import scala.collection.mutable.ArrayBuffer
+
 class FriendEntity extends PersistentEntity {
 
   override type Command = FriendCommand[_]
@@ -22,19 +24,25 @@ class FriendEntity extends PersistentEntity {
     case (GetUser(), ctx, state) => ctx.reply(GetUserReply(state.user))
   }
 
+  val onFriendAdded = Actions().onEvent {
+    case (FriendAdded(userId, friendId, timestamp), state) => state.addFriend(friendId)
+  }
+
   val notInitialized = {
     Actions().
       onCommand[CreateUser, Done] {
       case (CreateUser(user), ctx, state) =>
-        val event = UserCreated(user.userId, user.name)
-        ctx.thenPersist(event) { _ =>
+        val events = ArrayBuffer.empty[FriendEvent]
+        events += UserCreated(user.userId, user.name)
+        events ++= user.friends.map(friendId => FriendAdded(user.userId, friendId))
+        ctx.thenPersistAll(events: _*) { () =>
           ctx.reply(Done)
         }
     }.
       onEvent {
         case (UserCreated(userId, name, timestamp), state) => FriendState(User(userId, name))
       }
-  }.orElse(onGetUser)
+  }.orElse(onGetUser).orElse(onFriendAdded)
 
   val initialized = {
     Actions().
@@ -43,7 +51,7 @@ class FriendEntity extends PersistentEntity {
         ctx.invalidCommand(s"User ${user.name} is already created")
         ctx.done
     }
-  }.orElse(onGetUser)
+  }.orElse(onGetUser).orElse(onFriendAdded)
 
 }
 
@@ -53,6 +61,7 @@ object FriendSerializerRegistry extends JsonSerializerRegistry {
     JsonSerializer[GetUserReply],
     JsonSerializer[FriendState],
     JsonSerializer[CreateUser],
-    JsonSerializer[UserCreated]
+    JsonSerializer[UserCreated],
+    JsonSerializer[FriendAdded]
   )
 }

@@ -18,3 +18,9 @@ case class UserCreated(userId: String, name: String, timestamp: Instant = Instan
 object UserCreated {
   implicit val format: Format[UserCreated] = Json.format[UserCreated]
 }
+
+case class FriendAdded(userId: String, friendId: String, timestamp: Instant = Instant.now()) extends FriendEvent
+
+object FriendAdded {
+  implicit val format: Format[FriendAdded] = Json.format[FriendAdded]
+}

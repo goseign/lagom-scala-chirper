@@ -50,6 +50,9 @@ class FriendEntitySpec extends WordSpec with Matchers with BeforeAndAfterAll {
       val outcome = driver.run(CreateUser(alice))
       outcome.replies should contain only Done
       outcome.events.size should ===(3)
+      outcome.events(0) should matchPattern { case UserCreated("alice", "Alice", _) => }
+      outcome.events(1) should matchPattern { case FriendAdded("alice", "bob", _) => }
+      outcome.events(2) should matchPattern { case FriendAdded("alice", "peter", _) => }
     }
 
   }
