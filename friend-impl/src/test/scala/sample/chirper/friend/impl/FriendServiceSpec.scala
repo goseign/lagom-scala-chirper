@@ -19,6 +19,23 @@ class FriendServiceSpec extends AsyncWordSpec with Matchers with BeforeAndAfterA
 
   "Friend service" should {
 
+    "be able to create users and connect friends" in {
+      val usr1 = User("usr1", "User 1")
+      val usr2 = User("usr2", "User 2")
+      val usr3 = User("usr3", "User 3")
+      for {
+        _ <- client.createUser().invoke(usr1)
+        _ <- client.createUser().invoke(usr2)
+        _ <- client.createUser().invoke(usr3)
+        _ <- client.addFriend("usr1").invoke(FriendId("usr2"))
+        _ <- client.addFriend("usr1").invoke(FriendId("usr3"))
+        fetchedUsr1 <- client.getUser("usr1").invoke()
+      } yield {
+        fetchedUsr1 should matchPattern { case User(usr1.userId, usr1.name, _) => }
+        fetchedUsr1.friends should ===(List("usr2", "usr3"))
+      }
+    }
+
     "create and get user" in {
       val bob = User("bob", "Bob")
       for {

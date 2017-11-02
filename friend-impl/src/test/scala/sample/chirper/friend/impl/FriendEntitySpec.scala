@@ -78,6 +78,14 @@ class FriendEntitySpec extends WordSpec with Matchers with BeforeAndAfterAll {
       outcome.events.size should ===(0)
     }
 
+    "get user" in withTestDriver {driver =>
+      val alice = User("alice", "Alice")
+      driver.run(CreateUser(alice))
+      val outcome = driver.run(GetUser())
+      outcome.replies should contain only GetUserReply(Some(alice))
+      outcome.events.size should ===(0)
+    }
+
   }
 
 }
