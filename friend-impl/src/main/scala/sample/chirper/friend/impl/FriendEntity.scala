@@ -39,6 +39,11 @@ class FriendEntity extends PersistentEntity {
           ctx.reply(Done)
         }
     }.
+      onCommand[AddFriend, Done] {
+      case (AddFriend(friendUserId), ctx, state) =>
+        ctx.invalidCommand(s"User $entityId is not created")
+        ctx.done
+    }.
       onEvent {
         case (UserCreated(userId, name, timestamp), state) => FriendState(User(userId, name))
       }
@@ -50,6 +55,16 @@ class FriendEntity extends PersistentEntity {
       case (CreateUser(user), ctx, state) =>
         ctx.invalidCommand(s"User ${user.name} is already created")
         ctx.done
+    }.
+      onCommand[AddFriend, Done] {
+      case (AddFriend(friendUserId), ctx, state) if state.user.get.friends.contains(friendUserId) =>
+        ctx.reply(Done)
+        ctx.done
+      case (AddFriend(friendUserId), ctx, state) =>
+        val event = FriendAdded(state.user.get.userId, friendUserId)
+        ctx.thenPersist(event) { _ =>
+          ctx.reply(Done)
+        }
     }
   }.orElse(onGetUser).orElse(onFriendAdded)
 
@@ -62,6 +77,7 @@ object FriendSerializerRegistry extends JsonSerializerRegistry {
     JsonSerializer[FriendState],
     JsonSerializer[CreateUser],
     JsonSerializer[UserCreated],
+    JsonSerializer[AddFriend],
     JsonSerializer[FriendAdded]
   )
 }

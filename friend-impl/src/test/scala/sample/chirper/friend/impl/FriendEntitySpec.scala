@@ -18,7 +18,7 @@ class FriendEntitySpec extends WordSpec with Matchers with BeforeAndAfterAll {
   }
 
   def withTestDriver(test: PersistentEntityTestDriver[FriendCommand[_], FriendEvent, FriendState] => Unit): Unit = {
-    val testDriver = new PersistentEntityTestDriver(system, new FriendEntity, "friend-1")
+    val testDriver = new PersistentEntityTestDriver(system, new FriendEntity, "user-1")
     test(testDriver)
     testDriver.getAllIssues should have size 0
   }
@@ -53,6 +53,29 @@ class FriendEntitySpec extends WordSpec with Matchers with BeforeAndAfterAll {
       outcome.events(0) should matchPattern { case UserCreated("alice", "Alice", _) => }
       outcome.events(1) should matchPattern { case FriendAdded("alice", "bob", _) => }
       outcome.events(2) should matchPattern { case FriendAdded("alice", "peter", _) => }
+    }
+
+    "not add friend if not initialized" in withTestDriver { driver =>
+      val outcome = driver.run(AddFriend("bob"))
+      outcome.replies should contain only InvalidCommandException("User user-1 is not created")
+    }
+
+    "add friend" in withTestDriver { driver =>
+      val alice = User("alice", "Alice")
+      driver.run(CreateUser(alice))
+      val outcome = driver.run(AddFriend("bob"), AddFriend("peter"))
+      outcome.replies should contain only Done
+      outcome.events(0) should matchPattern { case FriendAdded("alice", "bob", _) => }
+      outcome.events(1) should matchPattern { case FriendAdded("alice", "peter", _) => }
+    }
+
+    "add duplicate friend" in withTestDriver { driver =>
+      val alice = User("alice", "Alice")
+      driver.run(CreateUser(alice))
+      driver.run(AddFriend("bob"), AddFriend("peter"))
+      val outcome = driver.run(AddFriend("bob"))
+      outcome.replies should contain only Done
+      outcome.events.size should ===(0)
     }
 
   }

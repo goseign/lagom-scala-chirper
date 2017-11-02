@@ -23,6 +23,12 @@ object CreateUser {
   implicit val format: Format[CreateUser] = Json.format[CreateUser]
 }
 
+case class AddFriend(friendUserId: String) extends FriendCommand[Done]
+
+object AddFriend {
+  implicit val format: Format[AddFriend] = Json.format[AddFriend]
+}
+
 // REPLIES -------------------------------------------------------------------------------------------------------------
 
 case class GetUserReply(user: Option[User])
