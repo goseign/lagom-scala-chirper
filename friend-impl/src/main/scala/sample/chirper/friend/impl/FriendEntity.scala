@@ -11,13 +11,23 @@ class FriendEntity extends PersistentEntity{
 
   override def initialState = FriendState(None)
 
-  override def behavior = ???
+  override def behavior = {
+    case _ => notInitialized.orElse(getUser)
+  }
+
+  val notInitialized = Actions()
+
+  val getUser = Actions().onReadOnlyCommand[GetUser, GetUserReply] {
+    case (GetUser(), ctx, state) => ctx.reply(GetUserReply(state.user))
+  }
 
 }
 
 object FriendSerializerRegistry extends JsonSerializerRegistry {
   override def serializers = List(
-    JsonSerializer[GetUser]
+    JsonSerializer[GetUser],
+    JsonSerializer[GetUserReply],
+    JsonSerializer[FriendState]
   )
 }
 
