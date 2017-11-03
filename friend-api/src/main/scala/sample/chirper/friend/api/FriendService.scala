@@ -1,6 +1,6 @@
 package sample.chirper.friend.api
 
-import akka.{Done, NotUsed}
+import akka.NotUsed
 import com.lightbend.lagom.scaladsl.api.broker.Topic
 import com.lightbend.lagom.scaladsl.api.broker.kafka.{KafkaProperties, PartitionKeyStrategy}
 import com.lightbend.lagom.scaladsl.api.{Service, ServiceCall}
@@ -9,9 +9,9 @@ trait FriendService extends Service {
 
   def getUser(userId: String): ServiceCall[NotUsed, User]
 
-  def createUser(): ServiceCall[User, Done]
+  def createUser(): ServiceCall[User, NotUsed]
 
-  def addFriend(userId: String): ServiceCall[FriendId, Done]
+  def addFriend(userId: String): ServiceCall[FriendId, NotUsed]
 
   def getFollowers(userId: String): ServiceCall[NotUsed, Seq[String]]
 

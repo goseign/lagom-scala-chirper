@@ -1,5 +1,4 @@
 ```
-
 sbt runAll
 
 # create user Alice
@@ -28,5 +27,4 @@ curl -X POST http://localhost:9000/api/users/alice/friends -d '{"friendId":"carl
 
 # Alice follows Carl (eventually)
 curl -X GET http://localhost:9000/api/users/carl/followers
-
 ```

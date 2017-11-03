@@ -1,6 +1,6 @@
 package sample.chirper.friend.impl
 
-import akka.Done
+import akka.NotUsed
 import com.lightbend.lagom.scaladsl.api.ServiceCall
 import com.lightbend.lagom.scaladsl.api.transport.NotFound
 import com.lightbend.lagom.scaladsl.broker.TopicProducer
@@ -20,12 +20,12 @@ class FriendServiceImpl(
       .map(_.user.getOrElse(throw NotFound(s"user $userId not found")))
   }
 
-  override def createUser(): ServiceCall[User, Done] = ServiceCall { request =>
-    friendEntityRef(request.userId).ask(CreateUser(request))
+  override def createUser(): ServiceCall[User, NotUsed] = ServiceCall { request =>
+    friendEntityRef(request.userId).ask(CreateUser(request)).map(_ => NotUsed.getInstance())
   }
 
-  override def addFriend(userId: String): ServiceCall[FriendId, Done] = ServiceCall { request =>
-    friendEntityRef(userId).ask(AddFriend(request.friendId))
+  override def addFriend(userId: String): ServiceCall[FriendId, NotUsed] = ServiceCall { request =>
+    friendEntityRef(userId).ask(AddFriend(request.friendId)).map(_ => NotUsed.getInstance())
   }
 
   override def getFollowers(userId: String) = ServiceCall { _ =>
