@@ -6,9 +6,9 @@ scalaVersion in ThisBuild := "2.11.8"
 val macwire = "com.softwaremill.macwire" %% "macros" % "2.2.5" % "provided"
 val scalaTest = "org.scalatest" %% "scalatest" % "3.0.1" % Test
 
-lazy val `lagom-scala-chirper` = (project in file(".")).aggregate(
-  `friend-api`, `friend-impl`
-)
+//lazy val `lagom-scala-chirper` = (project in file(".")).aggregate(
+//  `friend-api`, `friend-impl`
+//)
 
 lazy val `friend-api` = (project in file("friend-api"))
   .settings(
@@ -30,3 +30,24 @@ lazy val `friend-impl` = (project in file("friend-impl"))
   )
   .settings(lagomForkedTestSettings: _*)
   .dependsOn(`friend-api`)
+
+lazy val `chirp-api` = (project in file("chirp-api"))
+  .settings(
+    libraryDependencies ++= Seq(
+      lagomScaladslApi
+    )
+  )
+
+lazy val `chirp-impl` = (project in file("chirp-impl"))
+  .enablePlugins(LagomScala)
+  .settings(
+    libraryDependencies ++= Seq(
+//      lagomScaladslPersistenceCassandra,
+//      lagomScaladslKafkaBroker,
+      lagomScaladslTestKit,
+      macwire,
+      scalaTest
+    )
+  )
+  .settings(lagomForkedTestSettings: _*)
+  .dependsOn(`chirp-api`)
