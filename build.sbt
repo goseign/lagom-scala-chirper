@@ -4,11 +4,11 @@ version in ThisBuild := "1.0-SNAPSHOT"
 scalaVersion in ThisBuild := "2.11.8"
 
 val macwire = "com.softwaremill.macwire" %% "macros" % "2.2.5" % "provided"
+val scalaTest = "org.scalatest" %% "scalatest" % "3.0.1" % Test
 
-lazy val `lagom-scala-chirper` = (project in file("."))
-  .aggregate(
-    `friend-api`, `friend-impl`
-  )
+lazy val `lagom-scala-chirper` = (project in file(".")).aggregate(
+  `friend-api`, `friend-impl`
+)
 
 lazy val `friend-api` = (project in file("friend-api"))
   .settings(
@@ -21,8 +21,11 @@ lazy val `friend-impl` = (project in file("friend-impl"))
   .enablePlugins(LagomScala)
   .settings(
     libraryDependencies ++= Seq(
+      lagomScaladslPersistenceCassandra,
+      lagomScaladslKafkaBroker,
       lagomScaladslTestKit,
-      macwire
+      macwire,
+      scalaTest
     )
   )
   .settings(lagomForkedTestSettings: _*)
