@@ -47,7 +47,7 @@ class FriendServiceImpl(
   private def convertEvent(friendEvent: EventStreamElement[FriendEvent]) = {
     friendEvent.event match {
       case FriendAdded(userId, friendId, timestamp) => sample.chirper.friend.api.FriendAdded(userId, friendId, timestamp)
-      case other => throw new Exception(s"event not supported: $other")
+      case _ => sample.chirper.friend.api.FriendAdded("", "") // no other events supported yet
     }
   }
 }
