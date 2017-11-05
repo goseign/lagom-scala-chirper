@@ -1,5 +1,6 @@
 package sample.chirper.chirp.impl
 
+import akka.NotUsed
 import com.lightbend.lagom.scaladsl.server.LocalServiceLocator
 import com.lightbend.lagom.scaladsl.testkit.ServiceTest
 import org.scalatest.{AsyncWordSpec, BeforeAndAfterAll, Matchers}
@@ -17,11 +18,10 @@ class ChirpServiceSpec extends AsyncWordSpec with Matchers with BeforeAndAfterAl
 
   "Chirp service" should {
 
-    "init" in {
-//      client.addChirp("asdf").invoke(Chirp("asdf", "adsf")).map { result =>
-//        result should ===("asdf")
-//      }
-      "1" should ===("1")
+    "add chirp" in {
+      client.addChirp("alice").invoke(Chirp("alice", "Hello")).map { result =>
+        result should ===(NotUsed.getInstance())
+      }
     }
 
   }

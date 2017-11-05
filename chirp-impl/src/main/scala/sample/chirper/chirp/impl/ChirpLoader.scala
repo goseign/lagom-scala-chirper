@@ -2,6 +2,7 @@ package sample.chirper.chirp.impl
 
 import com.lightbend.lagom.scaladsl.api.ServiceLocator.NoServiceLocator
 import com.lightbend.lagom.scaladsl.devmode.LagomDevModeComponents
+import com.lightbend.lagom.scaladsl.persistence.cassandra.CassandraPersistenceComponents
 import com.lightbend.lagom.scaladsl.server.{LagomApplication, LagomApplicationContext, LagomApplicationLoader}
 import com.softwaremill.macwire._
 import play.api.libs.ws.ahc.AhcWSComponents
@@ -21,17 +22,17 @@ class ChirpLoader extends LagomApplicationLoader {
 
 abstract class ChirpApplication(context: LagomApplicationContext)
   extends LagomApplication(context)
-    //    with CassandraPersistenceComponents
-    //    with LagomKafkaComponents
+    with CassandraPersistenceComponents
+    // with LagomKafkaComponents
     with AhcWSComponents {
 
   override lazy val lagomServer = serverFor[ChirpService](wire[ChirpServiceImpl])
 
-  //  override def jsonSerializerRegistry = ChirpSerializerRegistry
-  //
-  //  persistentEntityRegistry.register(wire[ChirpEntity])
-  //
-  //  readSide.register(wire[ChirpEventProcessor])
+    override def jsonSerializerRegistry = ChirpTimelineSerializerRegistry
+
+    persistentEntityRegistry.register(wire[ChirpTimelineEntity])
+
+  readSide.register(wire[ChirpTimelineEventReadSideProcessor])
 
 }
 
