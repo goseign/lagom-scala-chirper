@@ -4,7 +4,7 @@ import akka.{Done, NotUsed}
 import com.lightbend.lagom.scaladsl.persistence.PersistentEntity
 import com.lightbend.lagom.scaladsl.playjson.{JsonSerializer, JsonSerializerRegistry}
 
-class ChirpTimelineEntity(val topic: ChirpTopic) extends PersistentEntity {
+class ChirpTimelineEntity(topic: ChirpTopic) extends PersistentEntity {
 
   override type Command = ChirpTimelineCommand[_]
   override type Event = ChirpTimelineEvent
@@ -19,6 +19,7 @@ class ChirpTimelineEntity(val topic: ChirpTopic) extends PersistentEntity {
         val event = ChirpAdded(chirp)
         ctx.thenPersist(event) { _ =>
           ctx.reply(Done)
+          println(s"onCommand publish chirp $chirp")
           topic.publish(chirp)
         }
     }

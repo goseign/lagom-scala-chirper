@@ -5,7 +5,6 @@ import play.api.libs.json.{Format, Json}
 import sample.chirper.chirp.api.Chirp
 
 sealed trait ChirpTimelineEvent extends AggregateEvent[ChirpTimelineEvent] {
-  //override def aggregateTag: AggregateEventShards[ChirpTimelineEvent] = ChirpTimelineEvent.Tag
   override def aggregateTag: AggregateEventShards[ChirpTimelineEvent] = ChirpTimelineEvent.Tag
 }
 

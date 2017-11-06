@@ -29,15 +29,15 @@ abstract class ChirpApplication(context: LagomApplicationContext)
 
   override lazy val lagomServer = serverFor[ChirpService](wire[ChirpServiceImpl])
 
+  lazy val chirpTopic = new ChirpTopicImpl(pubSubRegistry)
+
+  lazy val chirps = wire[ChirpRepositoryImpl]
+
   override def jsonSerializerRegistry = ChirpTimelineSerializerRegistry
 
   persistentEntityRegistry.register(wire[ChirpTimelineEntity])
 
   readSide.register(wire[ChirpTimelineEventReadSideProcessor])
-
-  lazy val chirpTopic = new ChirpTopicImpl(pubSubRegistry)
-
-  lazy val chirps = wire[ChirpRepositoryImpl]
 
 }
 

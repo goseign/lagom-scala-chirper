@@ -24,17 +24,17 @@ class ChirpServiceSpec extends AsyncWordSpec with Matchers with BeforeAndAfterAl
     "publish chirps to subscribers" in {
       val request = LiveChirpRequest(List("usr1", "usr2"))
 
-      val chirps1 = Await.result(chirpService.getLiveChirps().invoke(request), 3 seconds)
+      val chirps1 = Await.result(chirpService.getLiveChirps().invoke(request), 13 seconds)
       val probe1 = chirps1.runWith(TestSink.probe(server.actorSystem))(server.materializer)
       probe1.request(10)
 
-      val chirps2 = Await.result(chirpService.getLiveChirps().invoke(request), 3 seconds)
+      val chirps2 = Await.result(chirpService.getLiveChirps().invoke(request), 13 seconds)
       val probe2 = chirps2.runWith(TestSink.probe(server.actorSystem))(server.materializer)
       probe2.request(10)
 
       for (i <- 1 to 3) {
         val chirp = Chirp(s"usr$i", s"hello $i")
-        Await.result(chirpService.addChirp(s"usr$i").invoke(chirp), 3 seconds)
+        Await.result(chirpService.addChirp(s"usr$i").invoke(chirp), 13 seconds)
         probe1.expectNext(chirp)
         probe2.expectNext(chirp)
       }
