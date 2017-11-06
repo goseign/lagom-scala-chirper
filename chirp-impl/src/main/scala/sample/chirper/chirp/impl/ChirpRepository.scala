@@ -8,7 +8,6 @@ import com.datastax.driver.core.Row
 import com.lightbend.lagom.scaladsl.persistence.cassandra.CassandraSession
 import sample.chirper.chirp.api.Chirp
 
-import scala.collection.mutable.ArrayBuffer
 import scala.concurrent.{ExecutionContext, Future}
 
 /**
@@ -31,11 +30,7 @@ class ChirpRepositoryImpl(
   private val SELECT_RECENT_CHIRPS = "SELECT * FROM chirp WHERE userId = ? ORDER BY timestamp DESC LIMIT ?"
 
   override def getHistoricalChirps(userIds: Seq[String], timestamp: Long): Source[Chirp, NotUsed] = {
-    // FIXME: direct translation from Java, can be more declarative
-    val sources = ArrayBuffer.empty[Source[Chirp, NotUsed]]
-    for (userId <- userIds) {
-      sources += getHistoricalChirps(userId, timestamp)
-    }
+    val sources: Seq[Source[Chirp, NotUsed]] = for (userId <- userIds) yield getHistoricalChirps(userId, timestamp)
     // Chirps from one user are ordered by timestamp, but chirps from different
     // users are not ordered. That can be improved by implementing a smarter
     // merge that takes the timestamps into account.
@@ -51,6 +46,13 @@ class ChirpRepositoryImpl(
 
   // Helpers -----------------------------------------------------------------------------------------------------------
 
+  private def getHistoricalChirps(userId: String, timestamp: Long): Source[Chirp, NotUsed] =
+    db.select(
+      SELECT_HISTORICAL_CHIRPS,
+      userId,
+      long2Long(timestamp)
+    ).map(mapChirp)
+
   private def limitRecentChirps(all: Seq[Chirp]): Seq[Chirp] = {
     // FIXME: this can be streamed
     val limited = all
@@ -58,13 +60,6 @@ class ChirpRepositoryImpl(
       .take(NUM_RECENT_CHIRPS)
     limited.reverse
   }
-
-  private def getHistoricalChirps(userId: String, timestamp: Long): Source[Chirp, NotUsed] =
-    db.select(
-      SELECT_HISTORICAL_CHIRPS,
-      userId,
-      long2Long(timestamp)
-    ).map(mapChirp)
 
   private def getRecentChirps(userId: String): Future[Seq[Chirp]] =
     db.selectAll(
