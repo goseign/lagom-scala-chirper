@@ -23,15 +23,15 @@ class ChirpServiceImpl(
 
   override def getLiveChirps() = ServiceCall { request =>
     chirps.getRecentChirps(request.userIds).map { recentChirps =>
-      val sources = for (userId <- request.userIds) yield chirpTopic.subscriber(userId)
+      val sources = request.userIds.map(chirpTopic.subscriber)
       val users = request.userIds.distinct
-      val publishedChirps = Source(sources.toList)
+      val publishedChirps = Source(sources)
         .flatMapMerge(sources.size, identity)
         .filter(c => users.contains(c.userId))
 
       // We currently ignore the fact that it is possible to get duplicate chirps
       // from the recent and the topic. That can be solved with a de-duplication stage.
-      Source(recentChirps.toList).concat(publishedChirps)
+      Source(recentChirps).concat(publishedChirps)
     }
   }
 

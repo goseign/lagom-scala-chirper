@@ -15,7 +15,8 @@ class ChirpLoader extends LagomApplicationLoader {
     override def serviceLocator = NoServiceLocator
   }
 
-  override def loadDevMode(context: LagomApplicationContext) = new ChirpApplication(context) with LagomDevModeComponents
+  override def loadDevMode(context: LagomApplicationContext) =
+    new ChirpApplication(context) with LagomDevModeComponents
 
   override def describeService = Some(readDescriptor[ChirpService])
 
