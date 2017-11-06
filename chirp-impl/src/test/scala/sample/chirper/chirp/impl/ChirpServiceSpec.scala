@@ -55,6 +55,56 @@ class ChirpServiceSpec extends AsyncWordSpec with Matchers with BeforeAndAfterAl
 
     }
 
+    "should include some old chirps in live feed" in {
+
+      val chirp1 = Chirp(s"usr3", s"hello 1")
+      Await.result(chirpService.addChirp(s"usr3").invoke(chirp1), 3 seconds)
+
+      val chirp2 = Chirp(s"usr4", s"hello 2")
+      Await.result(chirpService.addChirp(s"usr4").invoke(chirp2), 3 seconds)
+
+      val request = LiveChirpRequest(List("usr3", "usr4"))
+
+      val chirps = Await.result(chirpService.getLiveChirps().invoke(request), 3 seconds)
+      val probe = chirps.runWith(TestSink.probe(server.actorSystem))(server.materializer)
+      probe.request(10)
+
+//      val chirp1 = Chirp(s"usr3", s"hello 1")
+//      Await.result(chirpService.addChirp(s"usr3").invoke(chirp1), 3 seconds)
+//
+//      val chirp2 = Chirp(s"usr4", s"hello 2")
+//      Await.result(chirpService.addChirp(s"usr4").invoke(chirp2), 3 seconds)
+
+      probe.expectNextUnordered(chirp1, chirp2)
+
+      probe.cancel()
+
+      // FIXME
+      "1" should ===("1")
+
+    }
+
   }
 
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
