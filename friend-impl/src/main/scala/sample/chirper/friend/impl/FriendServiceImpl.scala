@@ -30,7 +30,7 @@ class FriendServiceImpl(
 
   override def getFollowers(userId: String) = ServiceCall { _ =>
     db.selectAll("SELECT * FROM follower WHERE userId = ?", userId).map { rows =>
-      rows.map(_.getString("followedBy"))
+      rows.toList.map(_.getString("followedBy"))
     }
   }
 

@@ -4,6 +4,8 @@ import java.time.Instant
 
 import play.api.libs.json.{Format, Json}
 
+import scala.collection.immutable.Seq
+
 case class User(userId: String, name: String, friends: Seq[String] = Nil)
 
 object User {
