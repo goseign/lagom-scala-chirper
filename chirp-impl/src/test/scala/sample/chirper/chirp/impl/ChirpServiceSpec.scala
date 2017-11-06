@@ -1,12 +1,14 @@
 package sample.chirper.chirp.impl
 
+import java.time.Instant
+
 import akka.stream.testkit.scaladsl.TestSink
 import com.lightbend.lagom.scaladsl.server.LocalServiceLocator
 import com.lightbend.lagom.scaladsl.testkit.ServiceTest
 import org.scalatest.concurrent.Eventually
 import org.scalatest.time.{Seconds, Span}
 import org.scalatest.{AsyncWordSpec, BeforeAndAfterAll, Matchers}
-import sample.chirper.chirp.api.{Chirp, ChirpService, LiveChirpRequest}
+import sample.chirper.chirp.api.{Chirp, ChirpService, HistoricalChirpsRequest, LiveChirpRequest}
 
 import scala.concurrent.Await
 import scala.concurrent.duration._
@@ -34,18 +36,18 @@ class ChirpServiceSpec extends AsyncWordSpec with Matchers with BeforeAndAfterAl
       val probe2 = chirps2.runWith(TestSink.probe(server.actorSystem))(server.materializer)
       probe2.request(10)
 
-      val chirp1 = Chirp(s"usr1", s"hello 1")
-      Await.result(chirpService.addChirp(s"usr1").invoke(chirp1), 3 seconds)
+      val chirp1 = Chirp("usr1", "hello 1")
+      Await.result(chirpService.addChirp("usr1").invoke(chirp1), 3 seconds)
       probe1.expectNext(chirp1)
       probe2.expectNext(chirp1)
 
-      val chirp2 = Chirp(s"usr1", s"hello 2")
-      Await.result(chirpService.addChirp(s"usr1").invoke(chirp2), 3 seconds)
+      val chirp2 = Chirp("usr1", "hello 2")
+      Await.result(chirpService.addChirp("usr1").invoke(chirp2), 3 seconds)
       probe1.expectNext(chirp2)
       probe2.expectNext(chirp2)
 
-      val chirp3 = Chirp(s"usr2", s"hello 3")
-      Await.result(chirpService.addChirp(s"usr2").invoke(chirp3), 3 seconds)
+      val chirp3 = Chirp("usr2", "hello 3")
+      Await.result(chirpService.addChirp("usr2").invoke(chirp3), 3 seconds)
       probe1.expectNext(chirp3)
       probe2.expectNext(chirp3)
 
@@ -57,13 +59,13 @@ class ChirpServiceSpec extends AsyncWordSpec with Matchers with BeforeAndAfterAl
 
     }
 
-    "should include some old chirps in live feed" in {
+    "include some old chirps in live feed" in {
 
-      val chirp1 = Chirp(s"usr3", s"hi 1")
-      Await.result(chirpService.addChirp(s"usr3").invoke(chirp1), 3 seconds)
+      val chirp1 = Chirp("usr3", "hi 1")
+      Await.result(chirpService.addChirp("usr3").invoke(chirp1), 3 seconds)
 
-      val chirp2 = Chirp(s"usr4", s"hi 2")
-      Await.result(chirpService.addChirp(s"usr4").invoke(chirp2), 3 seconds)
+      val chirp2 = Chirp("usr4", "hi 2")
+      Await.result(chirpService.addChirp("usr4").invoke(chirp2), 3 seconds)
 
       val request = LiveChirpRequest(List("usr3", "usr4"))
 
@@ -75,7 +77,7 @@ class ChirpServiceSpec extends AsyncWordSpec with Matchers with BeforeAndAfterAl
         probe.expectNextUnordered(chirp1, chirp2)
 
         val chirp3 = Chirp("usr4", "hi 3")
-        Await.result(chirpService.addChirp(s"usr4").invoke(chirp3), 3 seconds)
+        Await.result(chirpService.addChirp("usr4").invoke(chirp3), 3 seconds)
         probe.expectNext(chirp3)
 
         probe.cancel()
@@ -85,6 +87,31 @@ class ChirpServiceSpec extends AsyncWordSpec with Matchers with BeforeAndAfterAl
       // FIXME
       "1" should ===("1")
 
+    }
+
+    "retrieve old chirps" in {
+
+      val chirp1 = Chirp("usr5", "msg 1")
+      Await.result(chirpService.addChirp("usr5").invoke(chirp1), 3 seconds)
+
+      val chirp2 = Chirp("usr6", "msg 2")
+      Await.result(chirpService.addChirp("usr6").invoke(chirp2), 3 seconds)
+
+      val request = new HistoricalChirpsRequest(
+        Instant.now().minusSeconds(20),
+        List("usr5", "usr6")
+      )
+
+      eventually(timeout(Span(10, Seconds))) {
+        val chirps = Await.result(chirpService.getHistoricalChirps().invoke(request), 3 seconds)
+        val probe = chirps.runWith(TestSink.probe(server.actorSystem))(server.materializer)
+        probe.request(10)
+        probe.expectNextUnordered(chirp1, chirp2)
+        probe.expectComplete()
+      }
+
+      // FIXME
+      "1" should ===("1")
     }
 
   }
