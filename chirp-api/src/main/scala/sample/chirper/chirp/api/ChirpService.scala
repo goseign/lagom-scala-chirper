@@ -2,6 +2,7 @@ package sample.chirper.chirp.api
 
 import akka.NotUsed
 import akka.stream.scaladsl.Source
+import com.lightbend.lagom.scaladsl.api.Service._
 import com.lightbend.lagom.scaladsl.api.{Service, ServiceCall}
 
 trait ChirpService extends Service {
@@ -12,13 +13,10 @@ trait ChirpService extends Service {
 
   def getHistoricalChirps(): ServiceCall[HistoricalChirpsRequest, Source[Chirp, NotUsed]]
 
-  override def descriptor = {
-    import Service._
-
+  override def descriptor =
     named("chirpservice").withCalls(
-      pathCall("/api/chirps/live/:userId", addChirp _),
-      namedCall("/api/chirps/live", getLiveChirps _),
-      namedCall("/api/chirps/history", getHistoricalChirps _)
-    ).withAutoAcl(true)
-  }
+    pathCall("/api/chirps/live/:userId", addChirp _),
+    namedCall("/api/chirps/live", getLiveChirps _),
+    namedCall("/api/chirps/history", getHistoricalChirps _)
+  ).withAutoAcl(true)
 }

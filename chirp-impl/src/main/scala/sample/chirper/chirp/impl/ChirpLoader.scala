@@ -15,7 +15,8 @@ class ChirpLoader extends LagomApplicationLoader {
     override def serviceLocator = NoServiceLocator
   }
 
-  override def loadDevMode(context: LagomApplicationContext) = new ChirpApplication(context) with LagomDevModeComponents
+  override def loadDevMode(context: LagomApplicationContext) =
+    new ChirpApplication(context) with LagomDevModeComponents
 
   override def describeService = Some(readDescriptor[ChirpService])
 
@@ -29,13 +30,15 @@ abstract class ChirpApplication(context: LagomApplicationContext)
 
   override lazy val lagomServer = serverFor[ChirpService](wire[ChirpServiceImpl])
 
+  lazy val chirpTopic = new ChirpTopicImpl(pubSubRegistry)
+
+  lazy val chirps = wire[ChirpRepositoryImpl]
+
   override def jsonSerializerRegistry = ChirpTimelineSerializerRegistry
 
   persistentEntityRegistry.register(wire[ChirpTimelineEntity])
 
   readSide.register(wire[ChirpTimelineEventReadSideProcessor])
-
-  lazy val chirpTopic = new ChirpTopicImpl(pubSubRegistry)
 
 }
 

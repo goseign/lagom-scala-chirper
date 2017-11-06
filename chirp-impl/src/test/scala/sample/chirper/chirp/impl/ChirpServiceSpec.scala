@@ -1,29 +1,140 @@
 package sample.chirper.chirp.impl
 
-import akka.NotUsed
+import java.time.Instant
+
+import akka.stream.testkit.scaladsl.TestSink
 import com.lightbend.lagom.scaladsl.server.LocalServiceLocator
 import com.lightbend.lagom.scaladsl.testkit.ServiceTest
+import org.scalatest.concurrent.Eventually
+import org.scalatest.time.{Seconds, Span}
 import org.scalatest.{AsyncWordSpec, BeforeAndAfterAll, Matchers}
-import sample.chirper.chirp.api.{Chirp, ChirpService}
+import sample.chirper.chirp.api.{Chirp, ChirpService, HistoricalChirpsRequest, LiveChirpRequest}
 
-class ChirpServiceSpec extends AsyncWordSpec with Matchers with BeforeAndAfterAll {
+import scala.concurrent.Await
+import scala.concurrent.duration._
+
+class ChirpServiceSpec extends AsyncWordSpec with Matchers with BeforeAndAfterAll with Eventually {
 
   val server = ServiceTest.startServer(ServiceTest.defaultSetup.withCassandra(true)) { ctx =>
     new ChirpApplication(ctx) with LocalServiceLocator
   }
 
-  val client = server.serviceClient.implement[ChirpService]
+  val chirpService = server.serviceClient.implement[ChirpService]
 
   override protected def afterAll() = server.stop()
 
   "Chirp service" should {
 
-    "add chirp" in {
-      client.addChirp("alice").invoke(Chirp("alice", "Hello")).map { result =>
-        result should ===(NotUsed.getInstance())
+    "publish chirps to subscribers" in {
+      val request = LiveChirpRequest(List("usr1", "usr2"))
+
+      val chirps1 = Await.result(chirpService.getLiveChirps().invoke(request), 3 seconds)
+      val probe1 = chirps1.runWith(TestSink.probe(server.actorSystem))(server.materializer)
+      probe1.request(10)
+
+      val chirps2 = Await.result(chirpService.getLiveChirps().invoke(request), 3 seconds)
+      val probe2 = chirps2.runWith(TestSink.probe(server.actorSystem))(server.materializer)
+      probe2.request(10)
+
+      val chirp1 = Chirp("usr1", "hello 1")
+      Await.result(chirpService.addChirp("usr1").invoke(chirp1), 3 seconds)
+      probe1.expectNext(chirp1)
+      probe2.expectNext(chirp1)
+
+      val chirp2 = Chirp("usr1", "hello 2")
+      Await.result(chirpService.addChirp("usr1").invoke(chirp2), 3 seconds)
+      probe1.expectNext(chirp2)
+      probe2.expectNext(chirp2)
+
+      val chirp3 = Chirp("usr2", "hello 3")
+      Await.result(chirpService.addChirp("usr2").invoke(chirp3), 3 seconds)
+      probe1.expectNext(chirp3)
+      probe2.expectNext(chirp3)
+
+      probe1.cancel()
+      probe2.cancel()
+
+      // FIXME
+      "1" should ===("1")
+
+    }
+
+    "include some old chirps in live feed" in {
+
+      val chirp1 = Chirp("usr3", "hi 1")
+      Await.result(chirpService.addChirp("usr3").invoke(chirp1), 3 seconds)
+
+      val chirp2 = Chirp("usr4", "hi 2")
+      Await.result(chirpService.addChirp("usr4").invoke(chirp2), 3 seconds)
+
+      val request = LiveChirpRequest(List("usr3", "usr4"))
+
+      eventually(timeout(Span(10, Seconds))) {
+
+        val chirps = Await.result(chirpService.getLiveChirps().invoke(request), 3 seconds)
+        val probe = chirps.runWith(TestSink.probe(server.actorSystem))(server.materializer)
+        probe.request(10)
+        probe.expectNextUnordered(chirp1, chirp2)
+
+        val chirp3 = Chirp("usr4", "hi 3")
+        Await.result(chirpService.addChirp("usr4").invoke(chirp3), 3 seconds)
+        probe.expectNext(chirp3)
+
+        probe.cancel()
+
       }
+
+      // FIXME
+      "1" should ===("1")
+
+    }
+
+    "retrieve old chirps" in {
+
+      val chirp1 = Chirp("usr5", "msg 1")
+      Await.result(chirpService.addChirp("usr5").invoke(chirp1), 3 seconds)
+
+      val chirp2 = Chirp("usr6", "msg 2")
+      Await.result(chirpService.addChirp("usr6").invoke(chirp2), 3 seconds)
+
+      val request = new HistoricalChirpsRequest(
+        Instant.now().minusSeconds(20),
+        List("usr5", "usr6")
+      )
+
+      eventually(timeout(Span(10, Seconds))) {
+        val chirps = Await.result(chirpService.getHistoricalChirps().invoke(request), 3 seconds)
+        val probe = chirps.runWith(TestSink.probe(server.actorSystem))(server.materializer)
+        probe.request(10)
+        probe.expectNextUnordered(chirp1, chirp2)
+        probe.expectComplete()
+      }
+
+      // FIXME
+      "1" should ===("1")
     }
 
   }
 
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
