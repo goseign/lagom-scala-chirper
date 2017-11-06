@@ -30,7 +30,8 @@ class ChirpTimelineEntitySpec extends WordSpec with Matchers with BeforeAndAfter
       val chirp = Chirp("user-1", "Hello, world")
       val outcome = driver.run(new AddChirp(chirp))
       outcome.replies should contain only Done
-      //TODO...
+      outcome.events.size should ===(1)
+      outcome.events(0).asInstanceOf[ChirpAdded].chirp should ===(chirp)
     }
 
   }

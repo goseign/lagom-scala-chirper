@@ -2,7 +2,7 @@ package sample.chirper.chirp.impl
 
 import akka.Done
 import com.datastax.driver.core.{BoundStatement, PreparedStatement}
-import com.lightbend.lagom.scaladsl.persistence.ReadSideProcessor
+import com.lightbend.lagom.scaladsl.persistence.{AggregateEventShards, AggregateEventTag, ReadSideProcessor}
 import com.lightbend.lagom.scaladsl.persistence.cassandra.{CassandraReadSide, CassandraSession}
 import sample.chirper.chirp.api.Chirp
 
@@ -21,7 +21,7 @@ class ChirpTimelineEventReadSideProcessor(
     .setEventHandler[ChirpAdded](ese => insertChirp(ese.event.chirp))
     .build()
 
-  override def aggregateTags = ???
+  override def aggregateTags = ChirpTimelineEvent.Tag.allTags
 
   // Helpers -----------------------------------------------------------------------------------------------------------
 
@@ -41,12 +41,11 @@ class ChirpTimelineEventReadSideProcessor(
       }
 
   private def insertChirp(chirp: Chirp): Future[List[BoundStatement]] = {
-    val bindInsertChirp = insertChirp.bind(
-      chirp.userId,
-      chirp.uuid,
-      String.valueOf(chirp.timestamp.toEpochMilli), // FIXME
-      chirp.message
-    )
+    val bindInsertChirp = insertChirp.bind()
+    bindInsertChirp.setString("userId", chirp.userId)
+    bindInsertChirp.setString("uuid", chirp.uuid)
+    bindInsertChirp.setLong("timestamp", chirp.timestamp.toEpochMilli)
+    bindInsertChirp.setString("message", chirp.message)
     Future.successful(List(bindInsertChirp))
   }
 }
