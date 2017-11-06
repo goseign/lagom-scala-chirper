@@ -43,7 +43,6 @@ lazy val `chirp-impl` = (project in file("chirp-impl"))
   .settings(
     libraryDependencies ++= Seq(
       lagomScaladslPersistenceCassandra,
-//      lagomScaladslKafkaBroker,
       lagomScaladslPubSub,
       lagomScaladslTestKit,
       macwire,
@@ -52,3 +51,25 @@ lazy val `chirp-impl` = (project in file("chirp-impl"))
   )
   .settings(lagomForkedTestSettings: _*)
   .dependsOn(`chirp-api`)
+
+lazy val `activity-stream-api` = (project in file("activity-stream-api"))
+  .settings(
+    libraryDependencies ++= Seq(
+      lagomScaladslApi
+    )
+  )
+  .dependsOn(`chirp-api`)
+
+lazy val `activity-stream-impl` = (project in file("activity-stream-impl"))
+  .enablePlugins(LagomScala)
+  .settings(
+    libraryDependencies ++= Seq(
+      lagomScaladslPersistenceCassandra,
+      lagomScaladslKafkaBroker,
+      lagomScaladslTestKit,
+      macwire,
+      scalaTest
+    )
+  )
+  .settings(lagomForkedTestSettings: _*)
+  .dependsOn(`activity-stream-api`, `chirp-api`, `friend-api`)

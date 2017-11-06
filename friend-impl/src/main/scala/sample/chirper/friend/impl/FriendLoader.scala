@@ -11,11 +11,11 @@ import sample.chirper.friend.api.FriendService
 
 class FriendLoader extends LagomApplicationLoader {
 
+  override def loadDevMode(context: LagomApplicationContext) = new FriendApplication(context) with LagomDevModeComponents
+
   override def load(context: LagomApplicationContext) = new FriendApplication(context) {
     override def serviceLocator = NoServiceLocator
   }
-
-  override def loadDevMode(context: LagomApplicationContext) = new FriendApplication(context) with LagomDevModeComponents
 
   override def describeService = Some(readDescriptor[FriendService])
 

@@ -11,11 +11,11 @@ import sample.chirper.chirp.api.ChirpService
 
 class ChirpLoader extends LagomApplicationLoader {
 
+  override def loadDevMode(context: LagomApplicationContext) = new ChirpApplication(context) with LagomDevModeComponents
+
   override def load(context: LagomApplicationContext) = new ChirpApplication(context) {
     override def serviceLocator = NoServiceLocator
   }
-
-  override def loadDevMode(context: LagomApplicationContext) = new ChirpApplication(context) with LagomDevModeComponents
 
   override def describeService = Some(readDescriptor[ChirpService])
 
