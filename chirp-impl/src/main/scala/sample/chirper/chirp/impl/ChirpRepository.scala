@@ -26,9 +26,9 @@ class ChirpRepositoryImpl(
                            db: CassandraSession
                          )(implicit val ec: ExecutionContext) extends ChirpRepository {
 
-  private val NUM_RECENT_CHIRPS = 10
-  private val SELECT_HISTORICAL_CHIRPS = "SELECT * FROM chirp WHERE userId = ? AND timestamp >= ? ORDER BY timestamp ASC"
-  private val SELECT_RECENT_CHIRPS = "SELECT * FROM chirp WHERE userId = ? ORDER BY timestamp DESC LIMIT ?"
+  private val NumRecentChirps = 10
+  private val SelectHistoricalChirps = "SELECT * FROM chirp WHERE userId = ? AND timestamp >= ? ORDER BY timestamp ASC"
+  private val SelectRecentChirps = "SELECT * FROM chirp WHERE userId = ? ORDER BY timestamp DESC LIMIT ?"
 
   override def getHistoricalChirps(userIds: Seq[String], timestamp: Long): Source[Chirp, NotUsed] = {
     val sources = userIds.map(getHistoricalChirps(_, timestamp))
@@ -38,27 +38,26 @@ class ChirpRepositoryImpl(
     Source(sources).flatMapMerge(sources.size, identity)
   }
 
-  override def getRecentChirps(userIds: Seq[String]): Future[Seq[Chirp]] = {
+  override def getRecentChirps(userIds: Seq[String]): Future[Seq[Chirp]] =
     Future
-      .sequence(userIds.map(getRecentChirps))
-      .map(_.flatten)
-      .map(limitRecentChirps)
-  }
+    .sequence(userIds.map(getRecentChirps))
+    .map(_.flatten)
+    .map(limitRecentChirps)
 
   // Helpers -----------------------------------------------------------------------------------------------------------
 
   private def getHistoricalChirps(userId: String, timestamp: Long): Source[Chirp, NotUsed] =
     db.select(
-      SELECT_HISTORICAL_CHIRPS,
+      SelectHistoricalChirps,
       userId,
       Long.box(timestamp)
     ).map(mapChirp)
 
   private def getRecentChirps(userId: String) =
     db.selectAll(
-      SELECT_RECENT_CHIRPS,
+      SelectRecentChirps,
       userId,
-      Int.box(NUM_RECENT_CHIRPS)
+      Int.box(NumRecentChirps)
     ).map(_.map(mapChirp))
 
   private def mapChirp(row: Row): Chirp = Chirp(
@@ -70,12 +69,10 @@ class ChirpRepositoryImpl(
 
   private def limitRecentChirps(all: Seq[Chirp]): Seq[Chirp] = {
     // FIXME: this can be streamed
-//    val limited = all
-//      .sortWith(_.timestamp.toEpochMilli < _.timestamp.toEpochMilli)
-//      .take(NUM_RECENT_CHIRPS)
-//    limited.reverse
-    // TODO:
-    all
+    val limited = all
+      .sortWith(_.timestamp.toEpochMilli < _.timestamp.toEpochMilli)
+      .take(NumRecentChirps)
+    limited.reverse
   }
 
 }

@@ -15,17 +15,15 @@ class ChirpTimelineEntity(topic: ChirpTopic) extends PersistentEntity {
   override def behavior =
     Actions()
       .onCommand[AddChirp, Done] {
-      case (AddChirp(chirp), ctx, state) =>
+      case (AddChirp(chirp), ctx, _) =>
         val event = ChirpAdded(chirp)
         ctx.thenPersist(event) { _ =>
           ctx.reply(Done)
-          println(s"onCommand publish chirp $chirp")
           topic.publish(chirp)
         }
     }
       .onEvent {
-        case (ChirpAdded(chirp), state) =>
-          println("onEvent ChirpAdded")
+        case (_, state) =>
           state
       }
 
