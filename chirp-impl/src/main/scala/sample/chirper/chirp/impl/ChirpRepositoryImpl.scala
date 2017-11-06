@@ -32,7 +32,10 @@ class ChirpRepositoryImpl(
   }
 
   override def getRecentChirps(userIds: Seq[String]): Future[Seq[Chirp]] = {
-    Future.sequence(userIds.map(getRecentChirps)).map(_.flatten)
+    Future
+      .sequence(userIds.map(getRecentChirps))
+      .map(_.flatten)
+      .map(limitRecentChirps)
   }
 
   // Helpers -----------------------------------------------------------------------------------------------------------
@@ -46,10 +49,18 @@ class ChirpRepositoryImpl(
   }
 
   private def getHistoricalChirps(userId: String, timestamp: Long): Source[Chirp, NotUsed] =
-    db.select(SELECT_HISTORICAL_CHIRPS, userId, String.valueOf(timestamp)).map(mapChirp)
+    db.select(
+      SELECT_HISTORICAL_CHIRPS,
+      userId,
+      long2Long(timestamp)
+    ).map(mapChirp)
 
   private def getRecentChirps(userId: String): Future[Seq[Chirp]] =
-    db.selectAll(SELECT_RECENT_CHIRPS, userId, String.valueOf(NUM_RECENT_CHIRPS)).map(mapChirps)
+    db.selectAll(
+      SELECT_RECENT_CHIRPS,
+      userId,
+      Integer.valueOf(NUM_RECENT_CHIRPS)
+    ).map(mapChirps)
 
   private def mapChirp(row: Row) = Chirp(
     row.getString("userId"),
@@ -61,3 +72,25 @@ class ChirpRepositoryImpl(
   private def mapChirps(chirps: Seq[Row]) = chirps.map(mapChirp)
 
 }
+
+//private def prepareCreateTables(): Future[Done] = {
+//  session.executeCreateTable(
+//  """CREATE TABLE IF NOT EXISTS follower (
+//    |userId text,followedBy text,
+//    |PRIMARY KEY (userId, followedBy)
+//    |)""".stripMargin)
+//}
+//
+//  private def prepareWriteFollowers(): Future[Done] = {
+//  session.prepare("INSERT INTO follower (userId, followedBy) VALUES (?, ?)").map { ps =>
+//  writeFollowers = ps
+//  Done
+//}
+//}
+//
+//  private def processFriendChanged(event: FriendAdded): Future[List[BoundStatement]] = {
+//  val bindWriteFollowers = writeFollowers.bind
+//  bindWriteFollowers.setString("userId", event.friendId)
+//  bindWriteFollowers.setString("followedBy", event.userId)
+//  Future.successful(List(bindWriteFollowers))
+//}

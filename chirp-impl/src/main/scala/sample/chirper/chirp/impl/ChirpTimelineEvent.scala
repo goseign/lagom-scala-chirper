@@ -1,11 +1,12 @@
 package sample.chirper.chirp.impl
 
-import com.lightbend.lagom.scaladsl.persistence.{AggregateEvent, AggregateEventTag, AggregateEventTagger}
+import com.lightbend.lagom.scaladsl.persistence.{AggregateEvent, AggregateEventShards, AggregateEventTag, AggregateEventTagger}
 import play.api.libs.json.{Format, Json}
 import sample.chirper.chirp.api.Chirp
 
 sealed trait ChirpTimelineEvent extends AggregateEvent[ChirpTimelineEvent] {
-  override def aggregateTag: AggregateEventTagger[ChirpTimelineEvent] = ChirpTimelineEvent.Tag
+  //override def aggregateTag: AggregateEventShards[ChirpTimelineEvent] = ChirpTimelineEvent.Tag
+  override def aggregateTag: AggregateEventShards[ChirpTimelineEvent] = ChirpTimelineEvent.Tag
 }
 
 object ChirpTimelineEvent {
