@@ -42,8 +42,9 @@ lazy val `chirp-impl` = (project in file("chirp-impl"))
   .enablePlugins(LagomScala)
   .settings(
     libraryDependencies ++= Seq(
-//      lagomScaladslPersistenceCassandra,
+      lagomScaladslPersistenceCassandra,
 //      lagomScaladslKafkaBroker,
+      lagomScaladslPubSub,
       lagomScaladslTestKit,
       macwire,
       scalaTest
