@@ -12,7 +12,6 @@ class FriendEventProcessor(
                             readSide: CassandraReadSide
                           )(implicit ec: ExecutionContext) extends ReadSideProcessor[FriendEvent] {
 
-  @volatile
   private var writeFollowers: PreparedStatement = _
 
   override def buildHandler() = readSide.builder[FriendEvent]("friend_offset")

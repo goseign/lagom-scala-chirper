@@ -13,7 +13,6 @@ class ChirpTimelineEventReadSideProcessor(
                                            readSide: CassandraReadSide
                                          )(implicit ec: ExecutionContext) extends ReadSideProcessor[ChirpTimelineEvent] {
 
-  @volatile
   private var insertChirp: PreparedStatement = _
 
   override def buildHandler() = readSide.builder[ChirpTimelineEvent]("ChirpTimelineEventReadSideProcessor")
@@ -45,7 +44,7 @@ class ChirpTimelineEventReadSideProcessor(
     val bindInsertChirp = insertChirp.bind(
       chirp.userId,
       chirp.uuid,
-      chirp.timestamp.toEpochMilli,
+      String.valueOf(chirp.timestamp.toEpochMilli), // FIXME
       chirp.message
     )
     Future.successful(List(bindInsertChirp))

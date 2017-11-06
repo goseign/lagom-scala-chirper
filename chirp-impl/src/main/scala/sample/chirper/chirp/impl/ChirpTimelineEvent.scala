@@ -9,7 +9,7 @@ sealed trait ChirpTimelineEvent extends AggregateEvent[ChirpTimelineEvent] {
 
 object ChirpTimelineEvent {
   val NumShards = 3
-  val Tag = AggregateEventTag.sharded(NumShards)[ChirpTimelineEvent]
+  val Tag = AggregateEventTag.sharded[ChirpTimelineEvent](NumShards)
 }
 
 case class ChirpAdded(chirp: Chirp) extends ChirpTimelineEvent

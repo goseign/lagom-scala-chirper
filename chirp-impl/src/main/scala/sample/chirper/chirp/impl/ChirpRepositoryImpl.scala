@@ -1,22 +1,63 @@
 package sample.chirper.chirp.impl
 
+import java.time.Instant
+
+import akka.NotUsed
+import akka.stream.scaladsl.Source
+import com.datastax.driver.core.Row
 import com.lightbend.lagom.scaladsl.persistence.cassandra.CassandraSession
 import sample.chirper.chirp.api.Chirp
 
-import scala.concurrent.Future
+import scala.collection.mutable.ArrayBuffer
+import scala.concurrent.{ExecutionContext, Future}
 
 class ChirpRepositoryImpl(
                            db: CassandraSession
-                         ) extends ChirpRepository {
+                         )(implicit val ec: ExecutionContext) extends ChirpRepository {
 
   private val NUM_RECENT_CHIRPS = 10
   private val SELECT_HISTORICAL_CHIRPS = "SELECT * FROM chirp WHERE userId = ? AND timestamp >= ? ORDER BY timestamp ASC"
   private val SELECT_RECENT_CHIRPS = "SELECT * FROM chirp WHERE userId = ? ORDER BY timestamp DESC LIMIT ?"
 
-  // ???
-  // private val pSequenceCollector = Collectors.collectingAndThen(Collectors.toList, TreePVector.from)
+  override def getHistoricalChirps(userIds: Seq[String], timestamp: Long): Source[Chirp, NotUsed] = {
+    // FIXME: direct translation from Java, can be more declarative
+    val sources = ArrayBuffer.empty[Source[Chirp, NotUsed]]
+    for (userId <- userIds) {
+      sources += getHistoricalChirps(userId, timestamp)
+    }
+    // Chirps from one user are ordered by timestamp, but chirps from different
+    // users are not ordered. That can be improved by implementing a smarter
+    // merge that takes the timestamps into account.
+    Source(sources.toList).flatMapMerge(sources.size, identity)
+  }
 
-  override def getHistoricalChirps(userIds: Seq[String], timestamp: Long): Unit = ???
+  override def getRecentChirps(userIds: Seq[String]): Future[Seq[Chirp]] = {
+    Future.sequence(userIds.map(getRecentChirps)).map(_.flatten)
+  }
 
-  override def getRecentChirps(userIds: Seq[String]): Future[Seq[Chirp]] = ???
+  // Helpers -----------------------------------------------------------------------------------------------------------
+
+  private def limitRecentChirps(all: Seq[Chirp]): Seq[Chirp] = {
+    // FIXME: this can be streamed
+    val limited = all
+      .sortWith(_.timestamp.toEpochMilli < _.timestamp.toEpochMilli)
+      .take(NUM_RECENT_CHIRPS)
+    limited.reverse
+  }
+
+  private def getHistoricalChirps(userId: String, timestamp: Long): Source[Chirp, NotUsed] =
+    db.select(SELECT_HISTORICAL_CHIRPS, userId, String.valueOf(timestamp)).map(mapChirp)
+
+  private def getRecentChirps(userId: String): Future[Seq[Chirp]] =
+    db.selectAll(SELECT_RECENT_CHIRPS, userId, String.valueOf(NUM_RECENT_CHIRPS)).map(mapChirps)
+
+  private def mapChirp(row: Row) = Chirp(
+    row.getString("userId"),
+    row.getString("message"),
+    Instant.ofEpochMilli(row.getLong("timestamp")),
+    row.getString("uuid")
+  )
+
+  private def mapChirps(chirps: Seq[Row]) = chirps.map(mapChirp)
+
 }
