@@ -70,10 +70,12 @@ class ChirpRepositoryImpl(
 
   private def limitRecentChirps(all: Seq[Chirp]): Seq[Chirp] = {
     // FIXME: this can be streamed
-    val limited = all
-      .sortWith(_.timestamp.toEpochMilli < _.timestamp.toEpochMilli)
-      .take(NUM_RECENT_CHIRPS)
-    limited.reverse
+//    val limited = all
+//      .sortWith(_.timestamp.toEpochMilli < _.timestamp.toEpochMilli)
+//      .take(NUM_RECENT_CHIRPS)
+//    limited.reverse
+    // TODO:
+    all
   }
 
 }
