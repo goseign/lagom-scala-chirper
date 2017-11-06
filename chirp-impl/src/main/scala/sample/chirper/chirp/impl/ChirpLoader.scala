@@ -37,5 +37,7 @@ abstract class ChirpApplication(context: LagomApplicationContext)
 
   lazy val chirpTopic = new ChirpTopicImpl(pubSubRegistry)
 
+  lazy val chirps = wire[ChirpRepositoryImpl]
+
 }
 
