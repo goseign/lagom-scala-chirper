@@ -3,13 +3,15 @@ package sample.chirper.chirp.impl
 import akka.stream.testkit.scaladsl.TestSink
 import com.lightbend.lagom.scaladsl.server.LocalServiceLocator
 import com.lightbend.lagom.scaladsl.testkit.ServiceTest
+import org.scalatest.concurrent.Eventually
+import org.scalatest.time.{Seconds, Span}
 import org.scalatest.{AsyncWordSpec, BeforeAndAfterAll, Matchers}
 import sample.chirper.chirp.api.{Chirp, ChirpService, LiveChirpRequest}
 
 import scala.concurrent.Await
 import scala.concurrent.duration._
 
-class ChirpServiceSpec extends AsyncWordSpec with Matchers with BeforeAndAfterAll {
+class ChirpServiceSpec extends AsyncWordSpec with Matchers with BeforeAndAfterAll with Eventually {
 
   val server = ServiceTest.startServer(ServiceTest.defaultSetup.withCassandra(true)) { ctx =>
     new ChirpApplication(ctx) with LocalServiceLocator
@@ -57,27 +59,28 @@ class ChirpServiceSpec extends AsyncWordSpec with Matchers with BeforeAndAfterAl
 
     "should include some old chirps in live feed" in {
 
-      val chirp1 = Chirp(s"usr3", s"hello 1")
+      val chirp1 = Chirp(s"usr3", s"hi 1")
       Await.result(chirpService.addChirp(s"usr3").invoke(chirp1), 3 seconds)
 
-      val chirp2 = Chirp(s"usr4", s"hello 2")
+      val chirp2 = Chirp(s"usr4", s"hi 2")
       Await.result(chirpService.addChirp(s"usr4").invoke(chirp2), 3 seconds)
 
       val request = LiveChirpRequest(List("usr3", "usr4"))
 
-      val chirps = Await.result(chirpService.getLiveChirps().invoke(request), 3 seconds)
-      val probe = chirps.runWith(TestSink.probe(server.actorSystem))(server.materializer)
-      probe.request(10)
+      eventually(timeout(Span(10, Seconds))) {
 
-//      val chirp1 = Chirp(s"usr3", s"hello 1")
-//      Await.result(chirpService.addChirp(s"usr3").invoke(chirp1), 3 seconds)
-//
-//      val chirp2 = Chirp(s"usr4", s"hello 2")
-//      Await.result(chirpService.addChirp(s"usr4").invoke(chirp2), 3 seconds)
+        val chirps = Await.result(chirpService.getLiveChirps().invoke(request), 3 seconds)
+        val probe = chirps.runWith(TestSink.probe(server.actorSystem))(server.materializer)
+        probe.request(10)
+        probe.expectNextUnordered(chirp1, chirp2)
 
-      probe.expectNextUnordered(chirp1, chirp2)
+        val chirp3 = Chirp("usr4", "hi 3")
+        Await.result(chirpService.addChirp(s"usr4").invoke(chirp3), 3 seconds)
+        probe.expectNext(chirp3)
 
-      probe.cancel()
+        probe.cancel()
+
+      }
 
       // FIXME
       "1" should ===("1")
