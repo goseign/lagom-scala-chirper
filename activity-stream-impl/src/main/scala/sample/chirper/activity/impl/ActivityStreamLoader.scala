@@ -11,7 +11,6 @@ import sample.chirper.friend.api.FriendService
 
 class ActivityStreamLoader extends LagomApplicationLoader {
 
-
   override def loadDevMode(context: LagomApplicationContext) = new ActivityStreamApplication(context) with LagomDevModeComponents
 
   override def load(context: LagomApplicationContext) = new ActivityStreamApplication(context) {

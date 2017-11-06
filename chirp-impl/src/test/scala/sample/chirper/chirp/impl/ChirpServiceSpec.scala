@@ -2,13 +2,13 @@ package sample.chirper.chirp.impl
 
 import akka.NotUsed
 import com.lightbend.lagom.scaladsl.server.LocalServiceLocator
-import com.lightbend.lagom.scaladsl.testkit.ServiceTest
+import com.lightbend.lagom.scaladsl.testkit.ServiceTest._
 import org.scalatest.{AsyncWordSpec, BeforeAndAfterAll, Matchers}
 import sample.chirper.chirp.api.{Chirp, ChirpService}
 
 class ChirpServiceSpec extends AsyncWordSpec with Matchers with BeforeAndAfterAll {
 
-  val server = ServiceTest.startServer(ServiceTest.defaultSetup.withCassandra(true)) { ctx =>
+  val server = startServer(defaultSetup.withCassandra(true)) { ctx =>
     new ChirpApplication(ctx) with LocalServiceLocator
   }
 
