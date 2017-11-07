@@ -24,8 +24,8 @@
             ],
             "env": [
               {
-                "name": "CASSANDRA_SERVICE_NAME",
-                "value": "_native._tcp.cassandra.default.svc.cluster.local"
+                "name": "APPLICATION_SECRET",
+                "value": "changeme!"
               },
               {
                 "name": "WEB_BIND_PORT",
