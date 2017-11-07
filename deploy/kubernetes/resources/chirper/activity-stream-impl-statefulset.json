@@ -41,7 +41,7 @@
             ],
             "readinessProbe": {
               "httpGet": {
-                "path": "/_status/circuit-breaker/current",
+                "path": "/api/activity/health",
                 "port": 9000
               },
               "initialDelaySeconds": 5,

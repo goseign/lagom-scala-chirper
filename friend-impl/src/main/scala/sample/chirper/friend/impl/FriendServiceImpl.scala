@@ -8,12 +8,14 @@ import com.lightbend.lagom.scaladsl.persistence.cassandra.CassandraSession
 import com.lightbend.lagom.scaladsl.persistence.{EventStreamElement, PersistentEntityRef, PersistentEntityRegistry}
 import sample.chirper.friend.api.{FriendId, FriendService, User}
 
-import scala.concurrent.ExecutionContext
+import scala.concurrent.{ExecutionContext, Future}
 
 class FriendServiceImpl(
                          persistentEntities: PersistentEntityRegistry,
                          db: CassandraSession
                        )(implicit ec: ExecutionContext) extends FriendService {
+
+  override def health() = ServiceCall { _ => Future.successful("OK") }
 
   override def getUser(userId: String) = ServiceCall { _ =>
     friendEntityRef(userId).ask(GetUser())

@@ -14,6 +14,8 @@ class ChirpServiceImpl(
                         chirps: ChirpRepository
                       )(implicit ec: ExecutionContext) extends ChirpService {
 
+  override def health() = ServiceCall { _ => Future.successful("OK") }
+
   override def addChirp(userId: String) = ServiceCall { request =>
     if (userId != request.userId) throw new IllegalArgumentException(s"UserId $userId did not match userId in $request")
     persistentEntities.refFor[ChirpTimelineEntity](userId)
