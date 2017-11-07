@@ -20,8 +20,8 @@ class FriendServiceImpl(
       .map(_.user.getOrElse(throw NotFound(s"user $userId not found")))
   }
 
-  override def createUser(): ServiceCall[User, NotUsed] = ServiceCall { request =>
-    friendEntityRef(request.userId).ask(CreateUser(request)).map(_ => NotUsed.getInstance())
+  override def createUser() = ServiceCall { request =>
+    friendEntityRef(request.userId).ask(CreateUser(User(request))).map(_ => NotUsed.getInstance())
   }
 
   override def addFriend(userId: String): ServiceCall[FriendId, NotUsed] = ServiceCall { request =>
