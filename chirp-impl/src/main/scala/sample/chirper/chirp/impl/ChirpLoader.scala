@@ -1,7 +1,7 @@
 package sample.chirper.chirp.impl
 
-import com.lightbend.lagom.scaladsl.api.ServiceLocator.NoServiceLocator
 import com.lightbend.lagom.scaladsl.devmode.LagomDevModeComponents
+import com.lightbend.lagom.scaladsl.dns.DnsServiceLocatorComponents
 import com.lightbend.lagom.scaladsl.persistence.cassandra.CassandraPersistenceComponents
 import com.lightbend.lagom.scaladsl.pubsub.PubSubComponents
 import com.lightbend.lagom.scaladsl.server.{LagomApplication, LagomApplicationContext, LagomApplicationLoader}
@@ -11,9 +11,7 @@ import sample.chirper.chirp.api.ChirpService
 
 class ChirpLoader extends LagomApplicationLoader {
 
-  override def load(context: LagomApplicationContext) = new ChirpApplication(context) {
-    override def serviceLocator = NoServiceLocator
-  }
+  override def load(context: LagomApplicationContext) = new ChirpApplication(context) with DnsServiceLocatorComponents
 
   override def loadDevMode(context: LagomApplicationContext) =
     new ChirpApplication(context) with LagomDevModeComponents

@@ -27,14 +27,15 @@ object BuildTarget {
     case Kubernetes =>
       Seq(
         Keys.libraryDependencies ++= Seq(
-          Library.serviceLocatorDns
+//          Library.serviceLocatorDns
         ),
         Keys.unmanagedResourceDirectories in Compile += Keys.sourceDirectory.value / "main" / "kubernetes-resources"
       )
     case Marathon   =>
       Seq(
         Keys.libraryDependencies ++= Seq(
-          Library.serviceLocatorDns, Library.constructr, Library.constructrZooKeeper
+//          Library.serviceLocatorDns,
+          Library.constructr, Library.constructrZooKeeper
         ),
         Keys.unmanagedResourceDirectories in Compile += Keys.sourceDirectory.value / "main" / "marathon-resources"
       )

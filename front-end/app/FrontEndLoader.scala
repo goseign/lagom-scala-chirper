@@ -1,6 +1,7 @@
 import com.lightbend.lagom.scaladsl.api.{ServiceAcl, ServiceInfo}
 import com.lightbend.lagom.scaladsl.client.LagomServiceClientComponents
 import com.lightbend.lagom.scaladsl.devmode.LagomDevModeComponents
+import com.lightbend.lagom.scaladsl.dns.DnsServiceLocatorComponents
 import com.softwaremill.macwire._
 import play.api.ApplicationLoader._
 import play.api.i18n.I18nComponents
@@ -13,7 +14,7 @@ import scala.concurrent.ExecutionContext
 class FrontEndLoader extends ApplicationLoader {
   override def load(context: Context): Application = context.environment.mode match {
     case Mode.Dev => (new FrontEndModule(context) with LagomDevModeComponents).application
-    case _ => (new FrontEndModule(context) with LagomDevModeComponents).application
+    case _ => (new FrontEndModule(context) with DnsServiceLocatorComponents).application
   }
 }
 

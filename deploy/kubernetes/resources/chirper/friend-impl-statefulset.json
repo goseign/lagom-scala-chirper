@@ -17,8 +17,8 @@
         "containers": [
           {
             "name": "friendservice",
-            "image": "chirper/friend-impl",
-            "imagePullPolicy": "Never",
+            "image": "192.168.99.1:5000/chirper/friend-impl",
+            "imagePullPolicy": "IfNotPresent",
             "ports": [
               {
                 "containerPort": 9000,
@@ -32,7 +32,7 @@
             "env": [
               {
                 "name": "APPLICATION_SECRET",
-                "value": "changeme!"
+                "value": "2pRmj6e:mR[5]13FmJg]rDEMCtiYhbN[Z=Kf2b3Enk1>Ai`tM1H:aD17]os?;fVq"
               },
               {
                 "name": "CASSANDRA_SERVICE_NAME",

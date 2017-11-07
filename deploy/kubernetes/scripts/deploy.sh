@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
-echo "Create Docker images =========================================================================================="
-sbt -DbuildTarget=kubernetes clean docker:publishLocal
+#echo "Create Docker images =========================================================================================="
+#sbt -DbuildTarget=kubernetes -DbuildVersion=1.0.1-SNAPSHOT clean docker:publishLocal
 
 echo "Deploy Chirper ================================================================================================"
 kubectl create -f deploy/kubernetes/resources/chirper && \

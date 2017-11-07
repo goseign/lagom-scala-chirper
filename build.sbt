@@ -46,6 +46,7 @@ lazy val `friend-impl` = (project in file("friend-impl"))
     resolvers += bintrayRepo("hajile", "maven"),
     resolvers += bintrayRepo("hseeberger", "maven"),
     libraryDependencies ++= Seq(
+      serviceLocatorDns,
       lagomScaladslPersistenceCassandra,
       lagomScaladslKafkaBroker,
       lagomScaladslTestKit,
@@ -83,6 +84,7 @@ lazy val `chirp-impl` = (project in file("chirp-impl"))
     resolvers += bintrayRepo("hajile", "maven"),
     resolvers += bintrayRepo("hseeberger", "maven"),
     libraryDependencies ++= Seq(
+      serviceLocatorDns,
       lagomScaladslPersistenceCassandra,
       lagomScaladslPubSub,
       lagomScaladslTestKit,
@@ -121,8 +123,7 @@ lazy val `activity-stream-impl` = (project in file("activity-stream-impl"))
     resolvers += bintrayRepo("hajile", "maven"),
     resolvers += bintrayRepo("hseeberger", "maven"),
     libraryDependencies ++= Seq(
-//      lagomScaladslPersistenceCassandra,
-//      lagomScaladslKafkaBroker,
+      serviceLocatorDns,
       lagomScaladslTestKit,
       macwire,
       scalaTest
@@ -156,6 +157,7 @@ lazy val `front-end` = (project in file("front-end"))
       "org.webjars" % "react-router" % "1.0.3",
       "org.webjars" % "jquery" % "2.2.0",
       "org.webjars" % "foundation" % "5.3.0",
+      serviceLocatorDns,
       macwire,
       lagomScaladslServer
       // TODO needed ?, lagomScaladslClient
