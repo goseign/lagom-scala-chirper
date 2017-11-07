@@ -9,7 +9,8 @@ val scalaTest = "org.scalatest" %% "scalatest" % "3.0.1" % Test
 lazy val `lagom-scala-chirper` = (project in file(".")).aggregate(
   `friend-api`, `friend-impl`,
   `chirp-api`, `chirp-impl`,
-  `activity-stream-api`, `activity-stream-impl`
+  `activity-stream-api`, `activity-stream-impl`,
+  `front-end`
 )
 
 lazy val `friend-api` = (project in file("friend-api"))
@@ -75,3 +76,26 @@ lazy val `activity-stream-impl` = (project in file("activity-stream-impl"))
   )
   .settings(lagomForkedTestSettings: _*)
   .dependsOn(`activity-stream-api`, `chirp-api`, `friend-api`)
+
+lazy val `front-end` = (project in file("front-end"))
+  .enablePlugins(PlayScala, LagomPlay)
+  .settings(
+    routesGenerator := StaticRoutesGenerator,
+    libraryDependencies ++= Seq(
+      "org.webjars" % "react" % "0.14.3",
+      "org.webjars" % "react-router" % "1.0.3",
+      "org.webjars" % "jquery" % "2.2.0",
+      "org.webjars" % "foundation" % "5.3.0",
+      macwire,
+      lagomScaladslServer
+    ),
+    ReactJsKeys.sourceMapInline := true
+  )
+
+
+
+
+
+
+
+

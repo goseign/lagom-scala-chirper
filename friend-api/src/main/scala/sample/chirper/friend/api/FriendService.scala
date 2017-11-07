@@ -12,7 +12,7 @@ trait FriendService extends Service {
 
   def getUser(userId: String): ServiceCall[NotUsed, User]
 
-  def createUser(): ServiceCall[User, NotUsed]
+  def createUser(): ServiceCall[CreateUser, NotUsed]
 
   def addFriend(userId: String): ServiceCall[FriendId, NotUsed]
 

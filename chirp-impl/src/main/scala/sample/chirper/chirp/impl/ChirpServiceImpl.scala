@@ -4,7 +4,7 @@ import akka.NotUsed
 import akka.stream.scaladsl.Source
 import com.lightbend.lagom.scaladsl.api.ServiceCall
 import com.lightbend.lagom.scaladsl.persistence.PersistentEntityRegistry
-import sample.chirper.chirp.api.ChirpService
+import sample.chirper.chirp.api.{Chirp, ChirpService}
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -14,10 +14,10 @@ class ChirpServiceImpl(
                         chirps: ChirpRepository
                       )(implicit ec: ExecutionContext) extends ChirpService {
 
-  override def addChirp(userId: String) = ServiceCall { chirp =>
-    if (userId != chirp.userId) throw new IllegalArgumentException(s"UserId $userId did not match userId in $chirp")
+  override def addChirp(userId: String) = ServiceCall { request =>
+    if (userId != request.userId) throw new IllegalArgumentException(s"UserId $userId did not match userId in $request")
     persistentEntities.refFor[ChirpTimelineEntity](userId)
-      .ask(AddChirp(chirp))
+      .ask(AddChirp(Chirp(request)))
       .map(_ => NotUsed.getInstance())
   }
 

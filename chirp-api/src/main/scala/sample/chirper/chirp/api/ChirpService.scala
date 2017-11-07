@@ -7,7 +7,7 @@ import com.lightbend.lagom.scaladsl.api.{Service, ServiceCall}
 
 trait ChirpService extends Service {
 
-  def addChirp(userId: String): ServiceCall[Chirp, NotUsed]
+  def addChirp(userId: String): ServiceCall[AddChirp, NotUsed]
 
   def getLiveChirps(): ServiceCall[LiveChirpRequest, Source[Chirp, NotUsed]]
 
