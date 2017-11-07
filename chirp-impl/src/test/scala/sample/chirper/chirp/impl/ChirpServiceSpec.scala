@@ -4,7 +4,7 @@ import java.time.Instant
 
 import akka.stream.testkit.scaladsl.TestSink
 import com.lightbend.lagom.scaladsl.server.LocalServiceLocator
-import com.lightbend.lagom.scaladsl.testkit.ServiceTest
+import com.lightbend.lagom.scaladsl.testkit.ServiceTest._
 import org.scalatest.concurrent.Eventually
 import org.scalatest.time.{Seconds, Span}
 import org.scalatest.{AsyncWordSpec, BeforeAndAfterAll, Matchers}
@@ -15,7 +15,7 @@ import scala.concurrent.duration._
 
 class ChirpServiceSpec extends AsyncWordSpec with Matchers with BeforeAndAfterAll with Eventually {
 
-  val server = ServiceTest.startServer(ServiceTest.defaultSetup.withCassandra(true)) { ctx =>
+  val server = startServer(defaultSetup.withCassandra(true)) { ctx =>
     new ChirpApplication(ctx) with LocalServiceLocator
   }
 
