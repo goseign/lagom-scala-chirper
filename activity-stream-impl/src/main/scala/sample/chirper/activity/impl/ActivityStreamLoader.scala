@@ -1,7 +1,7 @@
 package sample.chirper.activity.impl
 
-import com.lightbend.lagom.scaladsl.api.ServiceLocator.NoServiceLocator
 import com.lightbend.lagom.scaladsl.devmode.LagomDevModeComponents
+import com.lightbend.lagom.scaladsl.dns.DnsServiceLocatorComponents
 import com.lightbend.lagom.scaladsl.server.{LagomApplication, LagomApplicationContext, LagomApplicationLoader}
 import com.softwaremill.macwire._
 import play.api.libs.ws.ahc.AhcWSComponents
@@ -13,9 +13,7 @@ class ActivityStreamLoader extends LagomApplicationLoader {
 
   override def loadDevMode(context: LagomApplicationContext) = new ActivityStreamApplication(context) with LagomDevModeComponents
 
-  override def load(context: LagomApplicationContext) = new ActivityStreamApplication(context) {
-    override def serviceLocator = NoServiceLocator
-  }
+  override def load(context: LagomApplicationContext) = new ActivityStreamApplication(context) with DnsServiceLocatorComponents
 
   override def describeService = Some(readDescriptor[ActivityStreamService])
 

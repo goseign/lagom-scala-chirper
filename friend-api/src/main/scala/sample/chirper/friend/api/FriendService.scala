@@ -10,6 +10,8 @@ import scala.collection.immutable.Seq
 
 trait FriendService extends Service {
 
+  def health(): ServiceCall[NotUsed, String]
+
   def getUser(userId: String): ServiceCall[NotUsed, User]
 
   def createUser(): ServiceCall[CreateUser, NotUsed]
@@ -21,6 +23,7 @@ trait FriendService extends Service {
   def friendsTopic(): Topic[FriendAdded]
 
   override def descriptor = named("friendservice").withCalls(
+    pathCall("/api/users/health", health _),
     pathCall("/api/users/:userId", getUser _),
     namedCall("/api/users", createUser _),
     pathCall("/api/users/:userId/friends", addFriend _),

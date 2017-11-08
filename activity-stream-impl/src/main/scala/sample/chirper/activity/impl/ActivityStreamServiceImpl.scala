@@ -7,13 +7,16 @@ import sample.chirper.activity.api.ActivityStreamService
 import sample.chirper.chirp.api.{ChirpService, HistoricalChirpsRequest, LiveChirpRequest}
 import sample.chirper.friend.api.FriendService
 
-import scala.concurrent.ExecutionContext
+import scala.concurrent.{ExecutionContext, Future}
 
 class ActivityStreamServiceImpl(
                                  friendService: FriendService,
                                  chirpService: ChirpService
                                )
                                (implicit val ec: ExecutionContext) extends ActivityStreamService {
+
+
+  override def health() = ServiceCall { _ => Future.successful("OK") }
 
   override def getLiveActivityStream(userId: String) = ServiceCall { _ =>
     for {

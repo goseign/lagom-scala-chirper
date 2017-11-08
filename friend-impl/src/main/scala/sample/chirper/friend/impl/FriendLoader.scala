@@ -1,8 +1,8 @@
 package sample.chirper.friend.impl
 
-import com.lightbend.lagom.scaladsl.api.ServiceLocator.NoServiceLocator
 import com.lightbend.lagom.scaladsl.broker.kafka.LagomKafkaComponents
 import com.lightbend.lagom.scaladsl.devmode.LagomDevModeComponents
+import com.lightbend.lagom.scaladsl.dns.DnsServiceLocatorComponents
 import com.lightbend.lagom.scaladsl.persistence.cassandra.CassandraPersistenceComponents
 import com.lightbend.lagom.scaladsl.server.{LagomApplication, LagomApplicationContext, LagomApplicationLoader}
 import com.softwaremill.macwire._
@@ -13,9 +13,7 @@ class FriendLoader extends LagomApplicationLoader {
 
   override def loadDevMode(context: LagomApplicationContext) = new FriendApplication(context) with LagomDevModeComponents
 
-  override def load(context: LagomApplicationContext) = new FriendApplication(context) {
-    override def serviceLocator = NoServiceLocator
-  }
+  override def load(context: LagomApplicationContext) = new FriendApplication(context) with DnsServiceLocatorComponents
 
   override def describeService = Some(readDescriptor[FriendService])
 
