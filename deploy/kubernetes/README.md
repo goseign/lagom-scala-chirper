@@ -37,12 +37,9 @@ kubectl get pods
 # Verify deployment
 
 echo "Chirper UI (HTTP): $(minikube service --url nginx-ingress | head -n 1)" && \
-    echo "Chirper UI (HTTPS): $(minikube service --url --https nginx-ingress | tail -n 1)" && \
-    echo "Kubernetes Dashboard: $(minikube dashboard --url)"
+echo "Chirper UI (HTTPS): $(minikube service --url --https nginx-ingress | tail -n 1)" && \
+echo "Kubernetes Dashboard: $(minikube dashboard --url)"
 
 # Clean up
 
 (minikube delete || true) &>/dev/null
-
-# One command
-
