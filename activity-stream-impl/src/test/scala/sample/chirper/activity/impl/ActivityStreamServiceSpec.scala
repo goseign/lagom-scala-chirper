@@ -57,6 +57,8 @@ class FriendServiceStub extends FriendService {
   val user1 = User("usr1", "User 1", List("usr2"))
   val user2 = User("usr2", "User 2")
 
+  override def health() = ???
+
   override def getUser(userId: String) = ServiceCall { _ =>
     userId match {
       case user1.userId => Future.successful(user1)
@@ -76,6 +78,8 @@ class FriendServiceStub extends FriendService {
 }
 
 class ChirpServiceStub extends ChirpService {
+
+  override def health() = ???
 
   override def addChirp(userId: String) = ???
 

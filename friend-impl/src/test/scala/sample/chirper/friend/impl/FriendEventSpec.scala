@@ -45,6 +45,8 @@ class FriendEventSpec extends WordSpec with Matchers with Eventually with ScalaF
 // (2) a Service stub that will use the in-memory topic bound to our producer stub
 class FriendServiceStub(stub: ProducerStub[ApiFriendAdded]) extends FriendService {
 
+  override def health() = ???
+
   override def friendsTopic() = stub.topic
 
   override def getUser(userId: String) = ???

@@ -11,12 +11,7 @@ case class Chirp(userId: String, message: String, timestamp: Instant = defaultTi
 object Chirp {
   implicit val format = Json.format[Chirp]
 
-  def apply(addChirp: AddChirp): Chirp = Chirp(
-    addChirp.userId,
-    addChirp.message,
-    addChirp.timestamp.getOrElse(defaultTimestamp),
-    addChirp.uuid.getOrElse(defaultUuid)
-  )
+  def apply(addChirp: AddChirp): Chirp = Chirp(addChirp.userId, addChirp.message)
 
   def defaultTimestamp = Instant.now()
 
@@ -24,15 +19,10 @@ object Chirp {
 
 }
 
-case class AddChirp(
-                     userId: String,
-                     message: String,
-                     timestamp: Option[Instant] = Some(defaultTimestamp),
-                     uuid: Option[String] = Some(defaultUuid)
-                   )
+case class AddChirp(userId: String, message: String)
 
 object AddChirp {
   implicit val format = Json.format[AddChirp]
 
-  def apply(chirp: Chirp): AddChirp = new AddChirp(chirp.userId, chirp.message, Some(chirp.timestamp), Some(chirp.uuid))
+  def apply(chirp: Chirp): AddChirp = new AddChirp(chirp.userId, chirp.message)
 }
