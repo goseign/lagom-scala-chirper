@@ -73,8 +73,6 @@ class FriendServiceStub extends FriendService {
 
   override def getFollowers(userId: String) = ???
 
-  override def friendsTopic() = ???
-
 }
 
 class ChirpServiceStub extends ChirpService {

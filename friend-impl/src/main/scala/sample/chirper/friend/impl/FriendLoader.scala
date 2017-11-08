@@ -1,6 +1,5 @@
 package sample.chirper.friend.impl
 
-import com.lightbend.lagom.scaladsl.broker.kafka.LagomKafkaComponents
 import com.lightbend.lagom.scaladsl.devmode.LagomDevModeComponents
 import com.lightbend.lagom.scaladsl.dns.DnsServiceLocatorComponents
 import com.lightbend.lagom.scaladsl.persistence.cassandra.CassandraPersistenceComponents
@@ -22,7 +21,6 @@ class FriendLoader extends LagomApplicationLoader {
 abstract class FriendApplication(context: LagomApplicationContext)
   extends LagomApplication(context)
     with CassandraPersistenceComponents
-    with LagomKafkaComponents
     with AhcWSComponents {
 
   override lazy val lagomServer = serverFor[FriendService](wire[FriendServiceImpl])
