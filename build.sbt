@@ -164,9 +164,9 @@ lazy val `front-end` = (project in file("front-end"))
 
 //// do not delete database files on start
 //lagomCassandraCleanOnStart in ThisBuild := false
-//
-//// Kafka can be disabled until we need it
-//lagomKafkaEnabled in ThisBuild := false
-//
-//
-//
+
+// Kafka can be disabled until we need it
+lagomKafkaEnabled in ThisBuild := false
+
+
+

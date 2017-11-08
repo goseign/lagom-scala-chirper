@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-export VERSION=1.0.3
+export VERSION=1.0.4
 export REGISTRY=localhost:5000/chirper
 
 sbt "-DbuildVersion=$VERSION" -DbuildTarget=kubernetes clean docker:publishLocal
