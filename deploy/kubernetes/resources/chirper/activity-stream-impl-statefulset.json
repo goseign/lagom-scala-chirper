@@ -17,8 +17,8 @@
         "containers": [
           {
             "name": "activityservice",
-            "image": "192.168.99.1:5000/chirper/activity-stream-impl",
-            "imagePullPolicy": "IfNotPresent",
+            "image": "chirper/activity-stream-impl",
+            "imagePullPolicy": "Always",
             "ports": [
               {
                 "containerPort": 9000,
@@ -44,8 +44,8 @@
                 "path": "/api/activity/health",
                 "port": 9000
               },
-              "initialDelaySeconds": 5,
-              "periodSeconds": 5
+              "initialDelaySeconds": 50,
+              "periodSeconds": 50
             }
           }
         ]
