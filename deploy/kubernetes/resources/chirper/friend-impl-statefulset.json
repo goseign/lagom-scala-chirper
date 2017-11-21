@@ -17,8 +17,8 @@
         "containers": [
           {
             "name": "friendservice",
-            "image": "192.168.99.1:5000/chirper/friend-impl",
-            "imagePullPolicy": "IfNotPresent",
+            "image": "chirper/friend-impl",
+            "imagePullPolicy": "Always",
             "ports": [
               {
                 "containerPort": 9000,

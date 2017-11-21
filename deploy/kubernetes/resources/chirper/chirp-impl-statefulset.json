@@ -17,8 +17,8 @@
         "containers": [
           {
             "name": "chirpservice",
-            "image": "192.168.99.1:5000/chirper/chirp-impl",
-            "imagePullPolicy": "IfNotPresent",
+            "image": "chirper/chirp-impl",
+            "imagePullPolicy": "Always",
             "ports": [
               {
                 "containerPort": 9000,

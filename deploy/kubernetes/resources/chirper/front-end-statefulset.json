@@ -17,8 +17,8 @@
         "containers": [
           {
             "name": "web",
-            "image": "192.168.99.1:5000/chirper/front-end",
-            "imagePullPolicy": "IfNotPresent",
+            "image": "chirper/front-end",
+            "imagePullPolicy": "Always",
             "ports": [
               { "containerPort": 9000 }
             ],

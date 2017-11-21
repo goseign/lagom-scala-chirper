@@ -1,30 +1,22 @@
-```
-sbt runAll
+# Deploy
+```bash
+# required for new-minikube and deploy
+export REGISTRY=10.15.4.117:5000
 
-# create user Alice
-curl -X POST http://localhost:9000/api/users -d '{"userId":"alice","name":"Alice","friends":[]}'
+# once-off
+./deploy/kubernetes/scripts/install --new-minikube
+watch minikube status
+minikube dashboard
+./deploy/kubernetes/scripts/install --cassandra
 
-# create user Bob with friend Alice
-curl -X POST http://localhost:9000/api/users -d '{"userId":"bob","name":"Bob","friends":["alice"]}'
+# optional
+./deploy/kubernetes/scripts/install --build-sbt
+./deploy/kubernetes/scripts/install --deploy
 
-# Bob follows Alice (eventually)
-curl -X GET http://localhost:9000/api/users/alice/followers
+# once-off
+./deploy/kubernetes/scripts/install --nginx
 
-# Alice adds friend Bob
-curl -X POST http://localhost:9000/api/users/alice/friends -d '{"friendId":"bob"}'
-
-# Alice follows Bob (eventually)
-curl -X GET http://localhost:9000/api/users/bob/followers
-
-# create user Carl with friend Bob
-curl -X POST http://localhost:9000/api/users -d '{"userId":"carl","name":"Carl","friends":["bob"]}'
-
-# Carl follows Bob (eventually)
-curl -X GET http://localhost:9000/api/users/bob/followers
-
-# Alice adds friend Carl
-curl -X POST http://localhost:9000/api/users/alice/friends -d '{"friendId":"carl"}'
-
-# Alice follows Carl (eventually)
-curl -X GET http://localhost:9000/api/users/carl/followers
+# optional
+minikube service nginx-ingress --url
+./deploy/kubernetes/scripts/install --delete
 ```
