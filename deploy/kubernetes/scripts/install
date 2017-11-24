@@ -65,7 +65,7 @@ while test $# -gt 0; do
         --all)
             CONFIGURE_TLS=1
             DEPLOY_CASSANDRA=1
-            BUILD_CHIRPER=0
+            BUILD_CHIRPER=1
             DEPLOY_CHIRPER=1
             DEPLOY_NGINX=1
             ;;
