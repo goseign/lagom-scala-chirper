@@ -4,6 +4,8 @@
 export REGISTRY=10.15.4.117:5000
 
 # once-off
+kubectl create -f ./deploy/kubernetes/resources/chirper/chirper-namespace.yml
+kubectl config set-context $(kubectl config current-context) --namespace=chirperns
 ./deploy/kubernetes/scripts/install --new-minikube
 watch minikube status
 minikube dashboard
