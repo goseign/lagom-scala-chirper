@@ -36,7 +36,7 @@
               },
               {
                 "name": "CASSANDRA_SERVICE_NAME",
-                "value": "_native._tcp.cassandra.chirperns.svc.cluster.local"
+                "value": "_native._tcp.cassandra.default.svc.cluster.local"
               },
               {
                 "name": "CHIRPSERVICE_BIND_PORT",
@@ -56,15 +56,15 @@
               },
               {
                 "name": "AKKA_REMOTING_HOST",
-                "value": "$HOSTNAME.chirpservice.chirperns.svc.cluster.local"
+                "value": "$HOSTNAME.chirpservice.default.svc.cluster.local"
               },
               {
                 "name": "AKKA_REMOTING_BIND_HOST",
-                "value": "$HOSTNAME.chirpservice.chirperns.svc.cluster.local"
+                "value": "$HOSTNAME.chirpservice.default.svc.cluster.local"
               },
               {
                 "name": "AKKA_SEED_NODES",
-                "value": "chirpservice-0.chirpservice.chirperns.svc.cluster.local:2551,chirpservice-1.chirpservice.chirperns.svc.cluster.local:2551,chirpservice-2.chirpservice.chirperns.svc.cluster.local:2551"
+                "value": "chirpservice-0.chirpservice.default.svc.cluster.local:2551,chirpservice-1.chirpservice.default.svc.cluster.local:2551,chirpservice-2.chirpservice.default.svc.cluster.local:2551"
               }
             ],
             "readinessProbe": {
