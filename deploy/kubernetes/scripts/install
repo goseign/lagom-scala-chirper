@@ -4,7 +4,6 @@ RESOURCES_PATH="$(cd "$(dirname "${BASH_SOURCE[0]}")/../resources" && pwd)"
 CONFIGURE_TLS=0
 DEPLOY_CASSANDRA=0
 BUILD_CHIRPER=0
-BUILD_CHIRPER_SBT=0
 UPLOAD_CHIRPER=0
 DEPLOY_CHIRPER=0
 DELETE_CHIRPER=0
@@ -18,10 +17,8 @@ die() {
 }
 
 (which kubectl &>/dev/null) || die '* missing kubectl, is it installed?'
-#(which bx &>/dev/null) || die '* missing bx, is it installed?'
 (which jq &>/dev/null) || die '* missing jq, is it installed?'
 (which docker &>/dev/null) || die '* missing docker; is it installed?'
-#(which mvn &>/dev/null) || die '* missing mvn; is it installed?'
 
 if [[ "$#" -eq 0 ]]; then
     echo "$0 [--minikube] [--new-minikube] [--registry REGISTRY] [--tls] [--cassandra] [--build] [--deploy] [--delete] [--nginx] [--all]" >&1
@@ -54,11 +51,6 @@ while test $# -gt 0; do
             ;;
         --build)
             BUILD_CHIRPER=1
-            BUILD_CHIRPER_SBT=0
-            ;;
-        --build-sbt)
-            BUILD_CHIRPER_SBT=1
-            BUILD_CHIRPER=0
             ;;
         --deploy)
             DEPLOY_CHIRPER=1
@@ -73,8 +65,7 @@ while test $# -gt 0; do
         --all)
             CONFIGURE_TLS=1
             DEPLOY_CASSANDRA=1
-            BUILD_CHIRPER=1
-            BUILD_CHIRPER_SBT=0
+            BUILD_CHIRPER=0
             DEPLOY_CHIRPER=1
             DEPLOY_NGINX=1
             ;;
@@ -103,7 +94,7 @@ echo "Registry:            $([ "$REGISTRY" = "" ]         && echo "N/A" || echo 
 echo "Minikube:            $([ "$MINIKUBE" = 1 ]          && echo "$([ "$MINIKUBE_RESET" = 1 ] && echo "New" || echo "Yes")" || echo "No")"
 echo "Configure TLS:       $([ "$CONFIGURE_TLS" = 1 ]     && echo "Yes" || echo "No")"
 echo "Deploy Cassandra:    $([ "$DEPLOY_CASSANDRA" = 1 ]  && echo "Yes" || echo "No")"
-echo "Build Chirper:       $([ "$BUILD_CHIRPER" = 1 ]     && echo "Yes (Maven)" || echo "$([ "$BUILD_CHIRPER_SBT" = 1 ] && echo "Yes (SBT)" || echo "No")")"
+echo "Build Chirper:       $([ "$BUILD_CHIRPER" = 1 ]     && echo "Yes" || echo "No")"
 echo "Upload Chirper:      $([ "$UPLOAD_CHIRPER" = 1 ]    && echo "Yes" || echo "No")"
 echo "Delete Chirper:      $([ "$DELETE_CHIRPER" = 1 ]    && echo "Yes" || echo "No")"
 echo "Deploy Chirper:      $([ "$DEPLOY_CHIRPER" = 1 ]    && echo "Yes" || echo "No")"
@@ -181,15 +172,7 @@ fi
 
 if [ "$BUILD_CHIRPER" = 1 ]; then
     echo '*******************************'
-    echo '***  Building chirper (mvn) ***'
-    echo '*******************************'
-
-    (cd "$RESOURCES_PATH/../../.." && mvn -DbuildTarget=kubernetes clean package docker:build)
-fi
-
-if [ "$BUILD_CHIRPER_SBT" = 1 ]; then
-    echo '*******************************'
-    echo '***  Building chirper (sbt) ***'
+    echo '***  Building chirper       ***'
     echo '*******************************'
 
     (cd "$RESOURCES_PATH/../../.." && sbt -DbuildTarget=kubernetes clean docker:publishLocal)
