@@ -114,8 +114,9 @@ wait-for-pods() {
 }
 
 if [ "$MINIKUBE_RESET" = "1" ]; then
-    echo 'Start minikube:'
-    echo '==============='
+    echo ''
+    echo 'COPY AND PASTE THIS COMMAND:'
+    echo '============================'
     echo '(minikube delete || true) &>/dev/null && \'
     echo "minikube start --memory 8192 --insecure-registry \"$REGISTRY\" && \\"
     echo 'eval $(minikube docker-env)'
