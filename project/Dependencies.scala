@@ -3,7 +3,7 @@ import sbt._
 object Version {
   val constructr = "0.17.0"
   val constructrZooKeeper = "0.4.0"
-  val serviceLocatorDns = "2.2.2"
+  val serviceLocatorDns = "2.2.3"
 }
 
 object Library {

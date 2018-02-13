@@ -2,13 +2,13 @@ import com.typesafe.sbt.packager.docker._
 import sbt.Resolver.bintrayRepo
 
 organization in ThisBuild := "com.lightbend.lagom.sample.chirper"
-scalaVersion in ThisBuild := "2.11.8"
+scalaVersion in ThisBuild := "2.12.4"
 
 lazy val buildVersion = sys.props.getOrElse("buildVersion", "1.0.0-SNAPSHOT")
 
 val macwire = "com.softwaremill.macwire" %% "macros" % "2.2.5" % "provided"
 val scalaTest = "org.scalatest" %% "scalatest" % "3.0.1" % Test
-val serviceLocatorDns = "com.lightbend" % "lagom13-scala-service-locator-dns_2.11" % "2.2.2"
+val serviceLocatorDns = "com.lightbend" %% "lagom14-scala-service-locator-dns" % "2.3.0"
 
 lazy val `lagom-scala-chirper` = (project in file(".")).aggregate(
   `friend-api`, `friend-impl`,
