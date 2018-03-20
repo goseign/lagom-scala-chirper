@@ -147,7 +147,6 @@ lazy val `front-end` = (project in file("front-end"))
       },
     resolvers += bintrayRepo("hajile", "maven"),
     resolvers += bintrayRepo("hseeberger", "maven"),
-    routesGenerator := StaticRoutesGenerator,
     libraryDependencies ++= Seq(
       "org.webjars" % "react" % "0.14.3",
       "org.webjars" % "react-router" % "1.0.3",
@@ -167,6 +166,3 @@ lazy val `front-end` = (project in file("front-end"))
 
 // Kafka can be disabled until we need it
 lagomKafkaEnabled in ThisBuild := false
-
-
-
